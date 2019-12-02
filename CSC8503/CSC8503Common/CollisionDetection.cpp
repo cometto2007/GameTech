@@ -115,8 +115,9 @@ bool CollisionDetection::RaySphereIntersection(const Ray&r, const Transform& wor
 	if (sphereDist > sphereRadius) {
 		return false;
 	}
+
 	float offset = sqrt((sphereRadius * sphereRadius) - (sphereDist * sphereDist));
-	collision.rayDistance = sphereProj - (offset);
+	collision.rayDistance = sphereProj - offset;
 	collision.collidedAt = r.GetPosition() + (r.GetDirection() * collision.rayDistance);
 	return true;
 }
@@ -132,8 +133,8 @@ bool CollisionDetection::ObjectIntersection(GameObject* a, GameObject* b, Collis
 	collisionInfo.a = a;
 	collisionInfo.b = b;
 	
-	const Transform & transformA = a->GetConstTransform();
-	const Transform & transformB = b->GetConstTransform();
+	const Transform& transformA = a->GetConstTransform();
+	const Transform& transformB = b->GetConstTransform();
 
 	VolumeType pairType = (VolumeType)((int)volA->type | (int)volB->type);
 	
@@ -203,28 +204,15 @@ bool CollisionDetection::AABBIntersection(const AABBVolume& volumeA, const Trans
 			};
 	
 		float penetration = FLT_MAX;
-		Vector3 axis;
+		Vector3 bestAxis;
 	
 		for (int i = 0; i < 6; i++) {
 			if (distances[i] < penetration) {
 				penetration = distances[i];
-				axis = faces[i];
+				bestAxis = faces[i];
 			}
 		}
-		Vector3 closestPointOnBoxA = Maths::Clamp(boxBPos, minA, maxA);
-		Vector3 closestPointOnBoxB = Maths::Clamp(boxAPos, minB, maxB);
-	
-		Vector3 aDir = (boxAPos - closestPointOnBoxB).Normalised();
-		Vector3 bDir = (boxBPos - closestPointOnBoxA).Normalised();
-	
-		float aDot = Vector3::Dot(aDir, axis);
-		float bDot = Vector3::Dot(bDir, axis);
-	
-		if (abs(aDot) > abs(bDot)) {
-			collisionInfo.AddContactPoint(closestPointOnBoxB, axis, penetration);
-		} else {
-			collisionInfo.AddContactPoint(closestPointOnBoxA, axis, penetration);
-		}
+		collisionInfo.AddContactPoint(Vector3(), Vector3(), bestAxis, penetration);
 		return true;
 	}
 	return false;
@@ -241,10 +229,10 @@ bool CollisionDetection::SphereIntersection(const SphereVolume& volumeA, const T
 	if (deltaLength < radii) {
 		float penetration = (radii - deltaLength);
 		Vector3 normal = delta.Normalised();
-		Vector3 collisionPoint = collisionPoint = worldTransformA.GetWorldPosition() +
-			(normal * (volumeA.GetRadius() - (penetration * 0.5f)));
-		// TODO: I'm not sure is right
-		collisionInfo.AddContactPoint(collisionPoint, normal, penetration);
+		Vector3 localA = normal * volumeA.GetRadius();
+		Vector3 localB = -normal * volumeB.GetRadius();
+
+		collisionInfo.AddContactPoint(localA, localB, normal, penetration);
 		return true;// we 're colliding !
 	}
 	return false;
@@ -258,13 +246,16 @@ bool CollisionDetection::AABBSphereIntersection(const AABBVolume& volumeA, const
 	Vector3 delta = worldTransformB.GetWorldPosition() - worldTransformA.GetWorldPosition();
 	Vector3 closestPointOnBox = Maths::Clamp(delta, -boxSize, boxSize);
 	Vector3 localPoint = delta - closestPointOnBox;
-	 float distance = (localPoint).Length();
+	float distance = localPoint.Length();
 	
 	if (distance < volumeB.GetRadius()) {// yes , we 're colliding !
-		collisionInfo.AddContactPoint(
-			closestPointOnBox,
-			distance == 0.0f ? delta.Normalised() : localPoint.Normalised(),
-			(volumeB.GetRadius() - distance));
+		Vector3	collisionNormal = localPoint.Normalised();
+		float penetration = volumeB.GetRadius() - distance;
+
+		Vector3 localA = Vector3();
+		Vector3 localB = -collisionNormal * volumeB.GetRadius();
+
+		collisionInfo.AddContactPoint(localA, localB, collisionNormal, penetration);
 		return true;
 	}
 	return false;
