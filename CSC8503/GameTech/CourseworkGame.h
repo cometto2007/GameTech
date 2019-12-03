@@ -2,6 +2,8 @@
 #include "GameTechRenderer.h"
 #include "PlayerObject.h"
 #include "Apple.h"
+#include "Water.h"
+#include "Menu.h"
 #include "../CSC8503Common/PhysicsSystem.h"
 
 
@@ -60,6 +62,9 @@ namespace NCL {
 
 			GameObject* selectionObject = nullptr;
 			PlayerObject* player = nullptr;
+
+			Menu* mainMenu;
+			Menu* pauseMenu;
 
 			OGLMesh* cubeMesh = nullptr;
 			OGLMesh* sphereMesh = nullptr;

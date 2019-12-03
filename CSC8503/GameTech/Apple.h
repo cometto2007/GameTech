@@ -3,23 +3,18 @@
 #include "../CSC8503Common/GameWorld.h"
 #include "../CSC8503Common/SphereVolume.h"
 #include "../../Common/MeshGeometry.h"
-#include "Water.h"
+#include "PlayerObject.h"
 
 using namespace NCL;
 using namespace CSC8503;
 
-class PlayerObject : public GameObject
+class Apple : public GameObject
 {
 public:
-	PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* shader);
-	~PlayerObject() {};
+	Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader);
+	~Apple() {};
 
 	virtual void OnCollisionBegin(GameObject* otherObject) override;
-	virtual void OnCollisionEnd(GameObject* otherObject) override;
-
-	void move(Vector3 axis);
-
-private:
-	const float moveForce = 25.0f;
+	virtual void OnCollisionEnd(GameObject* otherObject) override {};
 };
 

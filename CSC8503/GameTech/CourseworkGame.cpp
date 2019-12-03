@@ -22,6 +22,9 @@ CourseworkGame::CourseworkGame() {
 
 	Debug::SetRenderer(renderer);
 
+	mainMenu = new Menu(renderer);
+	mainMenu->addChoice("New Game");
+	mainMenu->addChoice("Scores");
 	InitialiseAssets();
 }
 
@@ -92,6 +95,7 @@ void CourseworkGame::UpdateGame(float dt) {
 
 	Debug::FlushRenderables();
 	renderer->Render();
+	mainMenu->displayMenu();
 }
 
 void CourseworkGame::UpdateKeys() {
@@ -149,11 +153,15 @@ void CourseworkGame::movePlayer() {
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 		player->move(fwdAxis);
+		mainMenu->interact(KeyboardKeys::UP);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
 		player->move(-fwdAxis);
+		mainMenu->interact(KeyboardKeys::DOWN);
 	}
+
+	
 }
 
 void  CourseworkGame::LockedCameraMovement() {
@@ -254,17 +262,6 @@ bool CourseworkGame::SelectObject() {
 				return false;
 			}
 		}
-		if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::RIGHT)) {
-			Ray ray = CollisionDetection::BuildRayFromMouse(*world->GetMainCamera());
-
-			RayCollision closestCollision;
-			if (world->Raycast(ray, closestCollision, true)) {
-				AddLakeToWorld(closestCollision.collidedAt + Vector3(0,2,0));
-			}
-			else {
-				return false;
-			}
-		}
 		if (Window::GetKeyboard()->KeyPressed(NCL::KeyboardKeys::L)) {
 			if (selectionObject) {
 				if (lockedObject == selectionObject) {
@@ -329,7 +326,7 @@ void CourseworkGame::InitWorld() {
 	AddFloorToWorld(Vector3(100, -1, 100), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	AddFloorToWorld(Vector3(0, -1, 100), Vector3(12.5f, 1, 12.5f), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	AddFloorToWorld(Vector3(100, -1, 0), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	AddFloorToWorld(Vector3(0, -3, 100), Vector3(50, 1, 50), nullptr, Vector4(0.09f, 0.76f, 0.92f, 1.0f));
+	world->AddGameObject(new Water(Vector3(0, -3, 100), Vector3(50, 1, 50), cubeMesh, basicShader));
 
 	for (size_t i = 0; i < 20; i++) {
 		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);

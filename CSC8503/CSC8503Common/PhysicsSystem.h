@@ -1,5 +1,6 @@
 #pragma once
 #include "../CSC8503Common/GameWorld.h"
+#include "../GameTech/Water.h"
 #include <set>
 
 namespace NCL {
@@ -37,7 +38,8 @@ namespace NCL {
 			void UpdateCollisionList();
 			void UpdateObjectAABBs();
 
-			void ImpulseResolveCollision(GameObject& a , GameObject&b, CollisionDetection::ContactPoint& p) const;
+			void ImpulseResolveCollision(GameObject& a, GameObject& b, CollisionDetection::ContactPoint& p) const;
+			void ResolveSpringCollision(GameObject& a, GameObject& b, CollisionDetection::ContactPoint& p) const;
 
 			GameWorld& gameWorld;
 

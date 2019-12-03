@@ -20,6 +20,18 @@ PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* sha
 	physicsObject->InitSphereInertia();
 }
 
+void PlayerObject::OnCollisionBegin(GameObject* otherObject)
+{
+	/*if (dynamic_cast<Water*>(otherObject) != nullptr) {
+		SphereVolume* volume = new SphereVolume(0.3f);
+		boundingVolume = (CollisionVolume*)volume;
+	}*/
+}
+
+void PlayerObject::OnCollisionEnd(GameObject* otherObject)
+{
+}
+
 void PlayerObject::move(Vector3 axis)
 {
 	physicsObject->AddForce(axis * moveForce);

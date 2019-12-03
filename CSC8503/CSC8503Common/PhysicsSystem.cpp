@@ -173,7 +173,12 @@ void PhysicsSystem::BasicCollisionDetection() {
 			}
 			CollisionDetection::CollisionInfo info;
 			if (CollisionDetection::ObjectIntersection(*i, *j, info)) {
-				ImpulseResolveCollision(*info.a, *info.b, info.point);
+				if ((dynamic_cast<Water*>(*i) != nullptr) ||
+					(dynamic_cast<Water*>(*j) != nullptr)) {
+					ResolveSpringCollision(*info.a, *info.b, info.point);
+				} else {
+					ImpulseResolveCollision(*info.a, *info.b, info.point);
+				}
 				info.framesLeft = numCollisionFrames;
 				allCollisions.insert(info);
 			}
@@ -230,6 +235,24 @@ void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, Collis
 	
 	physA->ApplyAngularImpulse(Vector3::Cross(relativeA, -fullImpulse));
 	physB->ApplyAngularImpulse(Vector3::Cross(relativeB, fullImpulse));
+}
+
+void PhysicsSystem::ResolveSpringCollision(GameObject& a, GameObject& b, CollisionDetection::ContactPoint& p) const
+{
+	PhysicsObject* physA = a.GetPhysicsObject();
+	PhysicsObject* physB = b.GetPhysicsObject();
+
+	float restLenght = 0.0f;
+	float springConstant = 0.285f;
+
+	float f = -springConstant * (restLenght - p.penetration);
+	Vector3 fullImpulse = p.normal * f;
+
+	physA->ApplyLinearImpulse(-fullImpulse);
+	physB->ApplyLinearImpulse(fullImpulse);
+
+	physA->ApplyAngularImpulse(Vector3::Cross(p.localA, -fullImpulse));
+	physB->ApplyAngularImpulse(Vector3::Cross(p.localB, fullImpulse));
 }
 
 /*
