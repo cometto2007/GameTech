@@ -13,8 +13,10 @@ namespace NCL {
 
 			void Update();
 
+			void addState(PushdownState* state);
+
 		protected:
-			PushdownState * activeState;
+			PushdownState* activeState;
 
 			std::stack<PushdownState*> stateStack;
 		};

@@ -36,3 +36,9 @@ void PushdownMachine::Update() {
 		}
 	}
 }
+
+void NCL::CSC8503::PushdownMachine::addState(PushdownState* state)
+{
+	activeState = state;
+	stateStack.push(state);
+}

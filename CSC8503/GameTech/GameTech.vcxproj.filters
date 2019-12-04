@@ -48,6 +48,9 @@
     <ClCompile Include="Menu.cpp">
       <Filter>Menu</Filter>
     </ClCompile>
+    <ClCompile Include="MenuState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameTechRenderer.h">
@@ -79,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="Menu.h">
       <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuState.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -16,6 +16,8 @@ CourseworkGame::CourseworkGame() {
 	renderer = new GameTechRenderer(*world);
 	physics = new PhysicsSystem(*world);
 
+	
+
 	forceMagnitude = 10.0f;
 	useGravity = false;
 	inSelectionMode = false;
@@ -25,6 +27,9 @@ CourseworkGame::CourseworkGame() {
 	mainMenu = new Menu(renderer);
 	mainMenu->addChoice("New Game");
 	mainMenu->addChoice("Scores");
+
+	pushdownMachine = new PushdownMachine();
+	pushdownMachine->addState(new MenuState(mainMenu));
 	InitialiseAssets();
 }
 
@@ -95,7 +100,8 @@ void CourseworkGame::UpdateGame(float dt) {
 
 	Debug::FlushRenderables();
 	renderer->Render();
-	mainMenu->displayMenu();
+	//mainMenu->displayMenu();
+	pushdownMachine->Update();
 }
 
 void CourseworkGame::UpdateKeys() {

@@ -1,11 +1,12 @@
 #pragma once
 #include "GameTechRenderer.h"
+#include "../CSC8503Common/PushdownMachine.h"
 #include "PlayerObject.h"
+#include "MenuState.h"
 #include "Apple.h"
 #include "Water.h"
 #include "Menu.h"
 #include "../CSC8503Common/PhysicsSystem.h"
-
 
 namespace NCL {
 	namespace CSC8503 {
@@ -65,6 +66,8 @@ namespace NCL {
 
 			Menu* mainMenu;
 			Menu* pauseMenu;
+
+			PushdownMachine* pushdownMachine;
 
 			OGLMesh* cubeMesh = nullptr;
 			OGLMesh* sphereMesh = nullptr;
