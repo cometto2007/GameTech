@@ -155,19 +155,7 @@ void CourseworkGame::movePlayer() {
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
 		player->move(rightAxis);
-	}
-
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-		player->move(fwdAxis);
-		mainMenu->interact(KeyboardKeys::UP);
-	}
-
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-		player->move(-fwdAxis);
-		mainMenu->interact(KeyboardKeys::DOWN);
-	}
-
-	
+	}	
 }
 
 void  CourseworkGame::LockedCameraMovement() {

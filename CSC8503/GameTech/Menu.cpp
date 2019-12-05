@@ -3,6 +3,7 @@
 Menu::Menu(OGLRenderer* renderer)
 {
 	selChoice = 0;
+	enterPressed = false;
 	this->renderer = renderer;
 }
 
@@ -23,15 +24,25 @@ void Menu::displayMenu()
 	}
 }
 
-void Menu::interact(KeyboardKeys k)
+void Menu::interact()
 {
-	if (k == KeyboardKeys::DOWN) {
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
 		selChoice = min(selChoice + 1, (int)choices.size() - 1);
 	}
-	if (k == KeyboardKeys::UP) {
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 		selChoice = max(0, selChoice - 1);
 	}
-	if (k == KeyboardKeys::RETURN) {
-		// TODO
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RETURN)) {
+		enterPressed = true;
 	}
+}
+
+bool Menu::isEnterPressed()
+{
+	if (enterPressed) {
+		enterPressed = !enterPressed;
+		return !enterPressed;
+	}
+	return false;
+	
 }

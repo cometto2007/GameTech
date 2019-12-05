@@ -15,12 +15,15 @@ public:
 
 	void addChoice(std::string choice);
 	void displayMenu();
-	void interact(KeyboardKeys k);
+	void interact();
+
+	bool isEnterPressed();
 
 private:
 	OGLRenderer* renderer;
 
 	std::vector<std::string> choices;
 	int selChoice;
+	bool enterPressed;
 };
 

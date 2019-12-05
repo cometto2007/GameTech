@@ -16,13 +16,22 @@ void MenuState::OnSleep()
 
 void MenuState::Update()
 {
+	mainMenu->interact();
 	mainMenu->displayMenu();
 }
 
-PushdownState::PushdownResult NCL::CSC8503::MenuState::PushdownUpdate(PushdownState** pushResult)
+PushdownState::PushdownResult MenuState::PushdownUpdate(PushdownState** pushResult)
 {
 	Update();
-	return PushdownResult::NoChange;
+	if (mainMenu->isEnterPressed()) {
+		MenuState* ms = new MenuState(mainMenu);
+		PushdownState* ps = ms;
+		*pushResult = ps;
+		return PushdownResult::Push;
+	}
+	else {
+		return PushdownResult::NoChange;
+	}
 }
 
 

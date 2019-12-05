@@ -13,7 +13,9 @@ namespace NCL {
 			PushdownState();
 			~PushdownState();
 
-			PushdownResult PushdownUpdate(PushdownState** pushResult);
+			virtual void Update() {};
+
+			virtual PushdownResult PushdownUpdate(PushdownState** pushResult);
 
 			virtual void OnAwake() {} //By default do nothing
 			virtual void OnSleep() {} //By default do nothing
