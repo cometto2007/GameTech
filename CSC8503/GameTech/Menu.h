@@ -2,7 +2,6 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "../../Common/Window.h"
 #include "../../Plugins/OpenGLRendering/OGLRenderer.h"
 
 using namespace NCL;
@@ -16,6 +15,7 @@ public:
 	void addChoice(std::string choice);
 	void displayMenu();
 	void interact();
+	int getSelChoice() { return selChoice; };
 
 	bool isEnterPressed();
 
@@ -25,5 +25,6 @@ private:
 	std::vector<std::string> choices;
 	int selChoice;
 	bool enterPressed;
+	float delay;
 };
 

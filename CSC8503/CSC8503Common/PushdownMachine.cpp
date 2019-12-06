@@ -31,6 +31,7 @@ void PushdownMachine::Update() {
 			case PushdownState::Push: {
 				activeState->OnSleep();
 				stateStack.push(newState);
+				activeState = stateStack.top();
 				newState->OnAwake();
 			}break;
 		}

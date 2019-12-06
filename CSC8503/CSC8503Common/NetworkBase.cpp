@@ -1,5 +1,4 @@
 #include "NetworkBase.h"
-#include <enet/enet.h>
 #include <iostream>
 
 NetworkBase::NetworkBase()	{

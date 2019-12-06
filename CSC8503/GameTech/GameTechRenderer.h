@@ -17,6 +17,10 @@ namespace NCL {
 			GameTechRenderer(GameWorld& world);
 			~GameTechRenderer();
 
+			void setBackgroundColor(Vector4 col) {
+				backColor = col;
+			};
+
 		protected:
 			void RenderFrame()	override;
 
@@ -42,6 +46,8 @@ namespace NCL {
 			Vector4		lightColour;
 			float		lightRadius;
 			Vector3		lightPosition;
+
+			Vector4 backColor = Vector4(1,1,1,1);
 		};
 	}
 }

@@ -5,8 +5,8 @@
 #include "../../Plugins/OpenGLRendering/OGLTexture.h"
 #include "../../Common/TextureLoader.h"
 #include "Utility.h"
-
 #include "../CSC8503Common/PositionConstraint.h"
+#include "Menu.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -15,8 +15,7 @@ CourseworkGame::CourseworkGame() {
 	world = new GameWorld();
 	renderer = new GameTechRenderer(*world);
 	physics = new PhysicsSystem(*world);
-
-	
+	navGrid = new NavigationGrid("TestGrid1.txt");
 
 	forceMagnitude = 10.0f;
 	useGravity = false;
@@ -24,12 +23,6 @@ CourseworkGame::CourseworkGame() {
 
 	Debug::SetRenderer(renderer);
 
-	mainMenu = new Menu(renderer);
-	mainMenu->addChoice("New Game");
-	mainMenu->addChoice("Scores");
-
-	pushdownMachine = new PushdownMachine();
-	pushdownMachine->addState(new MenuState(mainMenu));
 	InitialiseAssets();
 }
 
@@ -92,16 +85,31 @@ void CourseworkGame::UpdateGame(float dt) {
 	}
 
 	SelectObject();
-	MoveSelectedObject();
 
 	world->UpdateWorld(dt);
 	renderer->Update(dt);
 	physics->Update(dt);
 
 	Debug::FlushRenderables();
+
+	NavigationPath outPath;
+	vector<Vector3> testNodes;
+	Vector3 startPos(80, 0, 10);
+	bool test = navGrid->FindPath(startPos,player->GetTransform().GetWorldPosition(), outPath);
+	navGrid->DebugDisplayGrid();
+	Vector3 pos;
+	while (outPath.PopWaypoint(pos)) {
+		testNodes.push_back(pos);
+	}
+
+	for (int i = 1; i < testNodes.size(); ++i) {
+		Vector3 a = testNodes[i - 1];
+		Vector3 b = testNodes[i];
+
+		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	}
+
 	renderer->Render();
-	//mainMenu->displayMenu();
-	pushdownMachine->Update();
 }
 
 void CourseworkGame::UpdateKeys() {
@@ -149,13 +157,10 @@ void CourseworkGame::movePlayer() {
 	Vector3 rightAxis = Vector3(camWorld.GetColumn(0));
 	Vector3 fwdAxis = player->GetTransform().GetLocalMatrix().GetColumn(2);
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-		player->move(-rightAxis);
-	}
-
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-		player->move(rightAxis);
-	}	
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) player->move(-rightAxis);
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) player->move(rightAxis);	
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) player->move(-fwdAxis);
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) player->move(fwdAxis);
 }
 
 void  CourseworkGame::LockedCameraMovement() {
@@ -173,45 +178,6 @@ void  CourseworkGame::LockedCameraMovement() {
 		world->GetMainCamera()->SetPosition(camPos);
 		world->GetMainCamera()->SetPitch(angles.x);
 		world->GetMainCamera()->SetYaw(angles.y);
-	}
-}
-
-
-void CourseworkGame::DebugObjectMovement() {
-	//If we've selected an object, we can manipulate it with some key presses
-	if (inSelectionMode && selectionObject) {
-		//Twist the selected object!
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(-10, 0, 0));
-		}
-
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(10, 0, 0));
-		}
-
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::NUM7)) {
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(0, 10, 0));
-		}
-
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::NUM8)) {
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(0, -10, 0));
-		}
-
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(10, 0, 0));
-		}
-
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-			selectionObject->GetPhysicsObject()->AddForce(Vector3(0, 0, -10));
-		}
-
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-			selectionObject->GetPhysicsObject()->AddForce(Vector3(0, 0, 10));
-		}
-
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::NUM5)) {
-			selectionObject->GetPhysicsObject()->AddForce(Vector3(0, -10, 0));
-		}
 	}
 }
 
@@ -273,32 +239,6 @@ bool CourseworkGame::SelectObject() {
 	return false;
 }
 
-/*
-If an object has been clicked, it can be pushed with the right mouse button, by an amount
-determined by the scroll wheel. In the first tutorial this won't do anything, as we haven't
-added linear motion into our physics system. After the second tutorial, objects will move in a straight
-line - after the third, they'll be able to twist under torque aswell.
-*/
-
-void CourseworkGame::MoveSelectedObject() {
-	renderer->DrawString(" Click Force :" + std::to_string(forceMagnitude), Vector2(10, 20)); // Draw debug text at 10 ,20
-	forceMagnitude += Window::GetMouse()->GetWheelMovement() * 100.0f;
-
-	if (!selectionObject) {
-		return;	// we haven 't selected anything !
-	}
-	// Push the selected object !
-	if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::RIGHT)) {
-		Ray ray = CollisionDetection::BuildRayFromMouse(*world->GetMainCamera());
-		RayCollision closestCollision;
-		if (world->Raycast(ray, closestCollision, true)) {
-			if (closestCollision.node == selectionObject) {
-				selectionObject->GetPhysicsObject()->AddForceAtPosition(ray.GetDirection() * forceMagnitude, closestCollision.collidedAt);
-			}
-		}
-	}
-}
-
 void CourseworkGame::InitCamera() {
 	world->GetMainCamera()->SetNearPlane(0.5f);
 	world->GetMainCamera()->SetFarPlane(2000.0f);
@@ -312,15 +252,17 @@ void CourseworkGame::InitWorld() {
 	world->ClearAndErase();
 	physics->Clear();
 
-	player = new PlayerObject(Vector3(0, 2, 100), gooseMesh, basicShader);
+	player = new PlayerObject(Vector3(50, 2, 150), gooseMesh, basicShader);
 	world->AddGameObject(player);
 	LockCameraToObject(player);
 
-	AddFloorToWorld(Vector3(0, -1, 0), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	AddFloorToWorld(Vector3(100, -1, 100), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	AddFloorToWorld(Vector3(0, -1, 100), Vector3(12.5f, 1, 12.5f), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	AddFloorToWorld(Vector3(100, -1, 0), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	world->AddGameObject(new Water(Vector3(0, -3, 100), Vector3(50, 1, 50), cubeMesh, basicShader));
+	//AddParkKeeperToWorld(Vector3(80, 0, 120));
+
+	AddFloorToWorld(Vector3(50, -1, 50), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
+	AddFloorToWorld(Vector3(150, -1, 50), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
+	AddFloorToWorld(Vector3(50, -1, 150), Vector3(12.5f, 1, 12.5f), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
+	AddFloorToWorld(Vector3(150, -1, 150), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
+	world->AddGameObject(new Water(Vector3(50, -3, 150), Vector3(50, 1, 50), cubeMesh, basicShader));
 
 	for (size_t i = 0; i < 20; i++) {
 		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);
@@ -357,75 +299,6 @@ GameObject* CourseworkGame::AddFloorToWorld(const Vector3& position, Vector3 flo
 	return floor;
 }
 
-GameObject* CourseworkGame::AddLakeToWorld(const Vector3& position)
-{
-	GameObject* lake = new GameObject();
-
-	Vector3 lakeSize = Vector3(100, 0.5, 100);
-	AABBVolume* volume = new AABBVolume(lakeSize);
-	lake->SetBoundingVolume((CollisionVolume*)volume);
-	lake->GetTransform().SetWorldScale(lakeSize);
-	lake->GetTransform().SetWorldPosition(position);
-
-	lake->SetRenderObject(new RenderObject(&lake->GetTransform(), cubeMesh, basicTex, basicShader));
-	lake->SetPhysicsObject(new PhysicsObject(&lake->GetTransform(), lake->GetBoundingVolume()));
-
-	lake->GetPhysicsObject()->SetInverseMass(0);
-	lake->GetPhysicsObject()->InitCubeInertia();
-
-	world->AddGameObject(lake);
-
-	return lake;
-}
-
-/*
-
-Builds a game object that uses a sphere mesh for its graphics, and a bounding sphere for its
-rigid body representation. This and the cube function will let you build a lot of 'simple'
-physics worlds. You'll probably need another function for the creation of OBB cubes too.
-
-*/
-GameObject* CourseworkGame::AddSphereToWorld(const Vector3& position, float radius, float inverseMass) {
-	GameObject* sphere = new GameObject();
-
-	Vector3 sphereSize = Vector3(radius, radius, radius);
-	SphereVolume* volume = new SphereVolume(radius);
-	sphere->SetBoundingVolume((CollisionVolume*)volume);
-	sphere->GetTransform().SetWorldScale(sphereSize);
-	sphere->GetTransform().SetWorldPosition(position);
-
-	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
-	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
-
-	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
-	sphere->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(sphere);
-
-	return sphere;
-}
-
-GameObject* CourseworkGame::AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass) {
-	GameObject* cube = new GameObject();
-
-	AABBVolume* volume = new AABBVolume(dimensions);
-
-	cube->SetBoundingVolume((CollisionVolume*)volume);
-
-	cube->GetTransform().SetWorldPosition(position);
-	cube->GetTransform().SetWorldScale(dimensions);
-
-	cube->SetRenderObject(new RenderObject(&cube->GetTransform(), cubeMesh, basicTex, basicShader));
-	cube->SetPhysicsObject(new PhysicsObject(&cube->GetTransform(), cube->GetBoundingVolume()));
-
-	cube->GetPhysicsObject()->SetInverseMass(inverseMass);
-	cube->GetPhysicsObject()->InitCubeInertia();
-
-	world->AddGameObject(cube);
-
-	return cube;
-}
-
 GameObject* CourseworkGame::AddParkKeeperToWorld(const Vector3& position)
 {
 	float meshSize = 4.0f;
@@ -449,137 +322,3 @@ GameObject* CourseworkGame::AddParkKeeperToWorld(const Vector3& position)
 
 	return keeper;
 }
-
-GameObject* CourseworkGame::AddCharacterToWorld(const Vector3& position) {
-	float meshSize = 4.0f;
-	float inverseMass = 0.5f;
-
-	auto pos = keeperMesh->GetPositionData();
-
-	Vector3 minVal = pos[0];
-	Vector3 maxVal = pos[0];
-
-	for (auto& i : pos) {
-		maxVal.y = max(maxVal.y, i.y);
-		minVal.y = min(minVal.y, i.y);
-	}
-
-	GameObject* character = new GameObject();
-
-	float r = rand() / (float)RAND_MAX;
-
-
-	AABBVolume* volume = new AABBVolume(Vector3(0.3, 0.9f, 0.3) * meshSize);
-	character->SetBoundingVolume((CollisionVolume*)volume);
-
-	character->GetTransform().SetWorldScale(Vector3(meshSize, meshSize, meshSize));
-	character->GetTransform().SetWorldPosition(position);
-
-	character->SetRenderObject(new RenderObject(&character->GetTransform(), r > 0.5f ? charA : charB, nullptr, basicShader));
-	character->SetPhysicsObject(new PhysicsObject(&character->GetTransform(), character->GetBoundingVolume()));
-
-	character->GetPhysicsObject()->SetInverseMass(inverseMass);
-	character->GetPhysicsObject()->InitCubeInertia();
-
-	world->AddGameObject(character);
-
-	return character;
-}
-
-GameObject* CourseworkGame::AddAppleToWorld(const Vector3& position) {
-	GameObject* apple = new GameObject();
-
-	SphereVolume* volume = new SphereVolume(0.7f);
-	apple->SetBoundingVolume((CollisionVolume*)volume);
-	apple->GetTransform().SetWorldScale(Vector3(4, 4, 4));
-	apple->GetTransform().SetWorldPosition(position);
-
-	apple->SetRenderObject(new RenderObject(&apple->GetTransform(), appleMesh, nullptr, basicShader));
-	apple->SetPhysicsObject(new PhysicsObject(&apple->GetTransform(), apple->GetBoundingVolume()));
-
-	apple->GetPhysicsObject()->SetInverseMass(1.0f);
-	apple->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(apple);
-
-	return apple;
-}
-
-void CourseworkGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
-	for (int x = 0; x < numCols; ++x) {
-		for (int z = 0; z < numRows; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 10.0f, z * rowSpacing);
-			AddSphereToWorld(position, radius, 1.0f);
-		}
-	}
-}
-
-void CourseworkGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing) {
-	float sphereRadius = 1.0f;
-	Vector3 cubeDims = Vector3(1, 1, 1);
-
-	for (int x = 0; x < numCols; ++x) {
-		for (int z = 0; z < numRows; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 10.0f, z * rowSpacing);
-
-			if (rand() % 2) {
-				AddCubeToWorld(position, cubeDims);
-			}
-			else {
-				AddSphereToWorld(position, sphereRadius);
-			}
-		}
-	}
-}
-
-void CourseworkGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims) {
-	for (int x = 1; x < numCols + 1; ++x) {
-		for (int z = 1; z < numRows + 1; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 10.0f, z * rowSpacing);
-			AddCubeToWorld(position, cubeDims, 1.0f);
-		}
-	}
-}
-
-void CourseworkGame::BridgeConstraintTest() {
-	Vector3 cubeSize = Vector3(8, 8, 8);
-
-	float	invCubeMass = 5;
-	int		numLinks = 25;
-	float	maxDistance = 30;
-	float	cubeDistance = 20;
-
-	Vector3 startPos = Vector3(500, 1000, 500);
-
-	GameObject* start = AddCubeToWorld(startPos + Vector3(0, 0, 0), cubeSize, 0);
-
-	GameObject* end = AddCubeToWorld(startPos + Vector3((numLinks + 2) * cubeDistance, 0, 0), cubeSize, 0);
-
-	GameObject* previous = start;
-
-	for (int i = 0; i < numLinks; ++i) {
-		GameObject* block = AddCubeToWorld(startPos + Vector3((i + 1) * cubeDistance, 0, 0), cubeSize, invCubeMass);
-		PositionConstraint* constraint = new PositionConstraint(previous, block, maxDistance);
-		world->AddConstraint(constraint);
-		previous = block;
-	}
-
-	PositionConstraint* constraint = new PositionConstraint(previous, end, maxDistance);
-	world->AddConstraint(constraint);
-}
-
-void CourseworkGame::SimpleGJKTest() {
-	Vector3 dimensions = Vector3(5, 5, 5);
-	Vector3 floorDimensions = Vector3(100, 2, 100);
-
-	GameObject* fallingCube = AddCubeToWorld(Vector3(0, 20, 0), dimensions, 10.0f);
-	GameObject* newFloor = AddCubeToWorld(Vector3(0, 0, 0), floorDimensions, 0.0f);
-
-	delete fallingCube->GetBoundingVolume();
-	delete newFloor->GetBoundingVolume();
-
-	fallingCube->SetBoundingVolume((CollisionVolume*)new OBBVolume(dimensions));
-	newFloor->SetBoundingVolume((CollisionVolume*)new OBBVolume(floorDimensions));
-}
-
-

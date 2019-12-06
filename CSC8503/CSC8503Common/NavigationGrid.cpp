@@ -1,5 +1,6 @@
 #include "NavigationGrid.h"
 #include "../../Common/Assets.h"
+#include "Debug.h"
 
 #include <fstream>
 
@@ -36,7 +37,7 @@ NavigationGrid::NavigationGrid(const std::string&filename) : NavigationGrid() {
 			char type = 0;
 			infile >> type;
 			n.type = type;
-			n.position = Vector3((float)(x * gridWidth), 0, (float)(y * gridHeight));
+			n.position = Vector3((float)(x * nodeSize), 0, (float)(y * nodeSize));
 		}
 	}
 	
@@ -75,6 +76,18 @@ NavigationGrid::~NavigationGrid()	{
 	delete[] allNodes;
 }
 
+void NavigationGrid::DebugDisplayGrid() {
+	for (int i = 0; i < gridWidth * gridHeight; ++i) {
+		GridNode a = allNodes[i];
+		if (a.type == 'x') {
+			Debug::DrawLine(a.position, Vector3(a.position.x, 20, a.position.z), Vector4(0, 0, 1, 1));
+		} else {
+			Debug::DrawLine(a.position, Vector3(a.position.x, 20, a.position.z), Vector4(1, 0, 0, 1));
+		}
+		
+	} 
+}
+
 bool NavigationGrid::FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) {
 	// need to work out which node 'from ' sits in , and 'to ' sits in
 	int fromX = (from.x / nodeSize);
@@ -93,8 +106,8 @@ bool NavigationGrid::FindPath(const Vector3& from, const Vector3& to, Navigation
 	GridNode* startNode = &allNodes[(fromZ * gridWidth) + fromX];
 	GridNode * endNode = &allNodes[(toZ * gridWidth) + toX];
 	
-	std::vector < GridNode*> openList;
-	std::vector < GridNode*> closedList;
+	std::vector <GridNode*> openList;
+	std::vector <GridNode*> closedList;
 	
 	openList.emplace_back(startNode);
 	

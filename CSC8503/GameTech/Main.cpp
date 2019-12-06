@@ -53,23 +53,68 @@ void TestStateMachine() {
 	delete testMachine;
 }
 
+class TestPacketReceiver : public PacketReceiver {
+public:
+	TestPacketReceiver(string name) {
+		this->name = name;
+	}
+	
+	void ReceivePacket(int type, GamePacket * payload, int source) {
+		if (type == String_Message) {
+			StringPacket * realPacket = (StringPacket*)payload;
+			string msg = realPacket->GetStringFromData();
+			
+			std::cout << name << " received message : " << msg << std::endl;
+		}
+	}
+protected:
+	string name;
+};
+
 void TestNetworking() {
+	NetworkBase::Initialise();
+	
+	TestPacketReceiver serverReceiver("Server");
+	TestPacketReceiver clientReceiver("Client");
+	
+	int port = NetworkBase::GetDefaultPort();
+	
+	GameServer* server = new GameServer(port, 1);
+	GameClient* client = new GameClient();
+	
+	server->RegisterPacketHandler(String_Message, &serverReceiver);
+	client->RegisterPacketHandler(String_Message, &clientReceiver);
+	
+	bool canConnect = client->Connect(127, 0, 0, 1, port);
+	
+	for (int i = 0; i < 100; ++i) {
+		server->SendGlobalPacket(StringPacket(" Server says hello ! " + std::to_string(i)));
+		client->SendPacket(StringPacket(" Client says hello ! " + std::to_string(i)));
+		server->UpdateServer();
+		client->UpdateClient();
+		
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	
+	NetworkBase::Destroy();
 }
 
 vector<Vector3> testNodes;
 
-void TestPathfinding() {
-	NavigationGrid grid("TestGrid1.txt");
+NavigationGrid* TestPathfinding() {
+	NavigationGrid* grid = new NavigationGrid("TestGrid1.txt");
 	NavigationPath outPath;
 	
 	Vector3 startPos(80, 0, 10);
 	Vector3 endPos(80, 0, 80);
 	
-	bool found = grid.FindPath(startPos, endPos, outPath);
+	bool found = grid->FindPath(startPos, endPos, outPath);
 	Vector3 pos;
 	while (outPath.PopWaypoint(pos)) {
 		testNodes.push_back(pos);
 	}
+
+	return grid;
 }
 
 void DisplayPathfinding() {
@@ -93,8 +138,12 @@ This time, we've added some extra functionality to the window class - we can
 hide or show the 
 
 */
+
+#include "../CSC8503Common//PushdownMachine.h"
+#include "MenuState.h"
+
 int main() {
-	Window*w = Window::CreateGameWindow("CSC8503 Game technology!", 1280, 720);
+	Window* w = Window::CreateGameWindow("CSC8503 Game technology!", 1280, 720);
 
 	if (!w->HasInitialised()) {
 		return -1;
@@ -102,15 +151,13 @@ int main() {
 
 	//TestStateMachine();
 	//TestNetworking();
-	TestPathfinding();
+	NavigationGrid* testGrid = TestPathfinding();
 	
 	w->ShowOSPointer(false);
 	w->LockMouseToWindow(true);
 
-	//TutorialGame* g = new TutorialGame();
-	CourseworkGame* g = new CourseworkGame();
-	
-
+	/*
+	TutorialGame* g = new TutorialGame();
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
 		float dt = w->GetTimer()->GetTimeDeltaSeconds();
 
@@ -130,6 +177,15 @@ int main() {
 		w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
 
 		g->UpdateGame(dt);
+	}
+	*/
+
+	PushdownMachine* pushdownMachine = new PushdownMachine();
+	pushdownMachine->addState(new MenuState());
+	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
+		//testGrid->DebugDisplayGrid();
+		//DisplayPathfinding();
+		pushdownMachine->Update();
 	}
 	Window::DestroyGameWindow();
 }

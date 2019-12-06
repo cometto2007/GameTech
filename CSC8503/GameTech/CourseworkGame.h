@@ -1,12 +1,10 @@
 #pragma once
 #include "GameTechRenderer.h"
-#include "../CSC8503Common/PushdownMachine.h"
 #include "PlayerObject.h"
-#include "MenuState.h"
 #include "Apple.h"
 #include "Water.h"
-#include "Menu.h"
 #include "../CSC8503Common/PhysicsSystem.h"
+#include "../CSC8503Common/NavigationGrid.h"
 
 namespace NCL {
 	namespace CSC8503 {
@@ -15,42 +13,24 @@ namespace NCL {
 			CourseworkGame();
 			~CourseworkGame();
 
+			void InitWorld();
+			void InitCamera();
+
 			virtual void UpdateGame(float dt);
 
 		protected:
 			void InitialiseAssets();
 
-			void InitCamera();
 			void UpdateKeys();
-
-			void InitWorld();
-
-			/*
-			These are some of the world/object creation functions I created when testing the functionality
-			in the module. Feel free to mess around with them to see different objects being created in different
-			test scenarios (constraints, collision types, and so on).
-			*/
-			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
-			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
-			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims);
-			void BridgeConstraintTest();
-			void SimpleGJKTest();
-
 			bool SelectObject();
-			void MoveSelectedObject();
-			void DebugObjectMovement();
+
 			void movePlayer();
 			void LockedCameraMovement();
 
 			GameObject* AddFloorToWorld(const Vector3& position, Vector3 floorSize, OGLTexture* text, Vector4 col);
-			GameObject* AddLakeToWorld(const Vector3& position);
-			GameObject* AddSphereToWorld(const Vector3& position, float radius, float inverseMass = 10.0f);
-			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass = 10.0f);
-			//IT'S HAPPENING
 			GameObject* AddParkKeeperToWorld(const Vector3& position);
-			GameObject* AddCharacterToWorld(const Vector3& position);
-			GameObject* AddAppleToWorld(const Vector3& position);
 
+			NavigationGrid* navGrid;
 
 			GameTechRenderer* renderer;
 			PhysicsSystem* physics;
@@ -63,11 +43,6 @@ namespace NCL {
 
 			GameObject* selectionObject = nullptr;
 			PlayerObject* player = nullptr;
-
-			Menu* mainMenu;
-			Menu* pauseMenu;
-
-			PushdownMachine* pushdownMachine;
 
 			OGLMesh* cubeMesh = nullptr;
 			OGLMesh* sphereMesh = nullptr;

@@ -2,6 +2,7 @@
 
 Menu::Menu(OGLRenderer* renderer)
 {
+	delay = 0.0f;
 	selChoice = 0;
 	enterPressed = false;
 	this->renderer = renderer;
@@ -15,6 +16,7 @@ void Menu::addChoice(std::string choice)
 void Menu::displayMenu()
 {
 	float screenY = Window::GetWindow()->GetScreenSize().y / 2;
+	renderer->Render();
 	for (size_t i = 0; i < choices.size(); i++) {
 		if (i == selChoice) {
 			renderer->DrawString(choices[i], Vector2(20, screenY - i * 25), Vector4(1, 0, 0, 1));
@@ -26,15 +28,15 @@ void Menu::displayMenu()
 
 void Menu::interact()
 {
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-		selChoice = min(selChoice + 1, (int)choices.size() - 1);
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-		selChoice = max(0, selChoice - 1);
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RETURN)) {
-		enterPressed = true;
-	}
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN)) {
+			selChoice = min(selChoice + 1, (int)choices.size() - 1);
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+			selChoice = max(0, selChoice - 1);
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RETURN)) {
+			enterPressed = true;
+		}
 }
 
 bool Menu::isEnterPressed()

@@ -1,3 +1,4 @@
+
 #include "NetworkObject.h"
 
 using namespace NCL;
