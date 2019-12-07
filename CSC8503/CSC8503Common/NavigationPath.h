@@ -1,5 +1,6 @@
 #pragma once
 #include "../../Common/Vector3.h"
+#include "Debug.h"
 #include <vector>
 
 namespace NCL {
@@ -25,9 +26,17 @@ namespace NCL {
 				return true;
 			}
 
+			void DrawDebugLine() {
+				for (int i = 1; i < waypoints.size(); ++i) {
+					Vector3 a = waypoints[i - 1];
+					Vector3 b = waypoints[i];
+
+					Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+				}
+			}
+
 		protected:
-			std::vector <Vector3> waypoints;
+			std::vector<Vector3> waypoints;
 		};
 	}
 }
-

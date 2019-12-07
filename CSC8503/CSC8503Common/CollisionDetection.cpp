@@ -6,11 +6,8 @@
 #include "../../Common/Vector2.h"
 #include "../../Common/Window.h"
 #include "../../Common/Maths.h"
-
-#include <list>
-
 #include "../CSC8503Common/Simplex.h"
-
+#include <list>
 #include "Debug.h"
 
 using namespace NCL;

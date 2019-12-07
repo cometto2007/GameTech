@@ -183,6 +183,7 @@ int main() {
 
 	PushdownMachine* pushdownMachine = new PushdownMachine();
 	pushdownMachine->addState(new MenuState());
+
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
 		//testGrid->DebugDisplayGrid();
 		//DisplayPathfinding();

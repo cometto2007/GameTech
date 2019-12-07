@@ -56,6 +56,8 @@ namespace NCL {
 			OGLMesh* charA = nullptr;
 			OGLMesh* charB = nullptr;
 
+			vector<Apple*> apples;
+
 			//Coursework Additional functionality	
 			GameObject* lockedObject = nullptr;
 			Vector3 lockedOffset = Vector3(0, 14, 20);

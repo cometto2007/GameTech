@@ -17,6 +17,8 @@ public:
 	virtual void OnCollisionBegin(GameObject* otherObject) override;
 	virtual void OnCollisionEnd(GameObject* otherObject) override;
 
+	float getMoveForce() { return moveForce; };
+
 	void move(Vector3 axis);
 
 private:

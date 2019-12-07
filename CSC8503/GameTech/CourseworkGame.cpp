@@ -92,23 +92,10 @@ void CourseworkGame::UpdateGame(float dt) {
 
 	Debug::FlushRenderables();
 
-	NavigationPath outPath;
-	vector<Vector3> testNodes;
-	Vector3 startPos(80, 0, 10);
-	bool test = navGrid->FindPath(startPos,player->GetTransform().GetWorldPosition(), outPath);
-	navGrid->DebugDisplayGrid();
-	Vector3 pos;
-	while (outPath.PopWaypoint(pos)) {
-		testNodes.push_back(pos);
+	movePlayer();
+	for (Apple* a : apples) {
+		a->followPlayer(dt);
 	}
-
-	for (int i = 1; i < testNodes.size(); ++i) {
-		Vector3 a = testNodes[i - 1];
-		Vector3 b = testNodes[i];
-
-		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-	}
-
 	renderer->Render();
 }
 
@@ -144,7 +131,6 @@ void CourseworkGame::UpdateKeys() {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F8)) {
 		world->ShuffleObjects(false);
 	}
-	movePlayer();
 }
 
 void CourseworkGame::movePlayer() {
@@ -250,6 +236,7 @@ void CourseworkGame::InitCamera() {
 
 void CourseworkGame::InitWorld() {
 	world->ClearAndErase();
+	apples.clear();
 	physics->Clear();
 
 	player = new PlayerObject(Vector3(50, 2, 150), gooseMesh, basicShader);
@@ -264,8 +251,9 @@ void CourseworkGame::InitWorld() {
 	AddFloorToWorld(Vector3(150, -1, 150), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	world->AddGameObject(new Water(Vector3(50, -3, 150), Vector3(50, 1, 50), cubeMesh, basicShader));
 
-	for (size_t i = 0; i < 20; i++) {
+	for (size_t i = 0; i < 1; i++) {
 		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);
+		apples.push_back(a);
 		world->AddGameObject(a);
 	}
 }

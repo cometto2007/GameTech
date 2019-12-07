@@ -6,6 +6,7 @@
 #include "PlayerObject.h"
 #include "Loader.h"
 
+
 using namespace NCL;
 using namespace CSC8503;
 
@@ -15,15 +16,21 @@ public:
 	Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader);
 	~Apple() {};
 
-	void followPlayer();
+	void followPlayer(float dt);
 
 	virtual void OnCollisionBegin(GameObject* otherObject) override;
 	virtual void OnCollisionEnd(GameObject* otherObject) override {};
 private:
 	Loader loader = Loader::getInstance();
 
+	// Pathfinding
 	PlayerObject* player;
 	NavigationGrid* navGrid;
+	NavigationPath pathToPlayer;
+	Vector3 currentGoalPos;
+	float delay;
+
+	Vector3 testPos;
 
 	bool taken;
 };
