@@ -79,7 +79,7 @@ NavigationGrid::~NavigationGrid()	{
 void NavigationGrid::DebugDisplayGrid() {
 	for (int i = 0; i < gridWidth * gridHeight; ++i) {
 		GridNode a = allNodes[i];
-		if (a.type == 'x') {
+		if (a.type == '.') {
 			Debug::DrawLine(a.position, Vector3(a.position.x, 20, a.position.z), Vector4(0, 0, 1, 1));
 		} else {
 			Debug::DrawLine(a.position, Vector3(a.position.x, 20, a.position.z), Vector4(1, 0, 0, 1));

@@ -16,6 +16,15 @@
     <Filter Include="Menu">
       <UniqueIdentifier>{e1490c12-3f8d-4fc1-b39f-faad26a4be41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="State">
+      <UniqueIdentifier>{63016d04-b347-4840-9f8e-d099932b1689}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObjects">
+      <UniqueIdentifier>{41adcd84-b2e0-4278-9460-734145f9b798}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{59a32c2f-90c7-4e20-930e-0c9407094487}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -36,23 +45,26 @@
     <ClCompile Include="CourseworkGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Apple.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Water.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Menu.cpp">
       <Filter>Menu</Filter>
     </ClCompile>
     <ClCompile Include="MenuState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>State</Filter>
     </ClCompile>
     <ClCompile Include="GameState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="Apple.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerObject.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Water.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Loader.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,26 +83,29 @@
     <ClInclude Include="CourseworkGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Apple.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Water.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Menu.h">
       <Filter>Menu</Filter>
     </ClInclude>
     <ClInclude Include="MenuState.h">
-      <Filter>Header Files</Filter>
+      <Filter>State</Filter>
     </ClInclude>
     <ClInclude Include="GameState.h">
-      <Filter>Header Files</Filter>
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="Apple.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerObject.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Water.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

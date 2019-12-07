@@ -12,6 +12,7 @@
 #include "TutorialGame.h"
 #include "CourseworkGame.h"
 #include "NetworkedGame.h"
+#include "Loader.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -187,5 +188,7 @@ int main() {
 		//DisplayPathfinding();
 		pushdownMachine->Update();
 	}
+
+	Loader::getInstance().Destroy();
 	Window::DestroyGameWindow();
 }

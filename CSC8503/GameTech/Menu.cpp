@@ -31,10 +31,10 @@ void Menu::interact()
 		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN)) {
 			selChoice = min(selChoice + 1, (int)choices.size() - 1);
 		}
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP)) {
 			selChoice = max(0, selChoice - 1);
 		}
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RETURN)) {
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::RETURN)) {
 			enterPressed = true;
 		}
 }

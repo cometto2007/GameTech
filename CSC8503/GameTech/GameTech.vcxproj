@@ -145,6 +145,7 @@
     <ClCompile Include="CourseworkGame.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="GameTechRenderer.cpp" />
+    <ClCompile Include="Loader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MenuState.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="CourseworkGame.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GameTechRenderer.h" />
+    <ClInclude Include="Loader.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="NetworkedGame.h" />
