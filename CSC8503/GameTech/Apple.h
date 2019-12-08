@@ -6,7 +6,6 @@
 #include "PlayerObject.h"
 #include "Loader.h"
 
-
 using namespace NCL;
 using namespace CSC8503;
 
@@ -19,7 +18,7 @@ public:
 	void followPlayer(float dt);
 
 	virtual void OnCollisionBegin(GameObject* otherObject) override;
-	virtual void OnCollisionEnd(GameObject* otherObject) override {};
+	virtual void OnCollisionEnd(GameObject* otherObject) override;
 private:
 	Loader loader = Loader::getInstance();
 
@@ -33,5 +32,7 @@ private:
 	Vector3 testPos;
 
 	bool taken;
+	float followSpeed;
+	float followHeight;
 };
 

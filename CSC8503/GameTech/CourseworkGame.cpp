@@ -96,6 +96,7 @@ void CourseworkGame::UpdateGame(float dt) {
 	for (Apple* a : apples) {
 		a->followPlayer(dt);
 	}
+	e->getBehaviour()->Update();
 	renderer->Render();
 }
 
@@ -251,11 +252,17 @@ void CourseworkGame::InitWorld() {
 	AddFloorToWorld(Vector3(150, -1, 150), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	world->AddGameObject(new Water(Vector3(50, -3, 150), Vector3(50, 1, 50), cubeMesh, basicShader));
 
-	for (size_t i = 0; i < 1; i++) {
+	for (size_t i = 0; i < 20; i++) {
 		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);
 		apples.push_back(a);
 		world->AddGameObject(a);
 	}
+	Apple* a = new Apple(Vector3(55, 3, 150), appleMesh, basicShader);
+	apples.push_back(a);
+	world->AddGameObject(a);
+
+	e = new HumanEnemy(Vector3(45, 3, 150), charA, basicShader);
+	world->AddGameObject(e);
 }
 
 //From here on it's functions to add in objects to the world!

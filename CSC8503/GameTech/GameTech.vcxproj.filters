@@ -66,6 +66,12 @@
     <ClCompile Include="Loader.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="HumanEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PatrolState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameTechRenderer.h">
@@ -106,6 +112,12 @@
     </ClInclude>
     <ClInclude Include="Loader.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="HumanEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PatrolState.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

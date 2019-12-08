@@ -14,60 +14,48 @@ Apple::Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader)
 
 	testPos = Vector3(50, 2, 150);
 	navGrid = loader.getFloatingGrid();
-	//navGrid->FindPath(transform.GetWorldPosition(), player->GetTransform().GetWorldPosition(), pathToPlayer);
-	//pathToPlayer.PopWaypoint(currentGoalPos);
+	player = nullptr;
 	taken = false;
+	followSpeed = 15.0f;
+	followHeight = 3.0f;
 	delay = 0.0f;
 }
 
 void Apple::followPlayer(float dt)
 {
 	if (taken) {
-		Debug::DrawLine(currentGoalPos, Vector3(currentGoalPos.x, 20, currentGoalPos.z), Vector4(1, 1, 1, 1));
+		transform.SetWorldPosition(Vector3(transform.GetWorldPosition().x, followHeight, transform.GetWorldPosition().z));
+		Debug::DrawLine(currentGoalPos, Vector3(currentGoalPos.x, 7.0f, currentGoalPos.z), Vector4(1, 1, 1, 1)); // TODO: delete this
 		float distanceFromGoal = (transform.GetWorldPosition() - currentGoalPos).Length();
 		std::cout << distanceFromGoal << std::endl;
-		if (distanceFromGoal > 2.0f) {
-			physicsObject->AddForce((currentGoalPos - transform.GetWorldPosition()) * 5.0f);
-		}
-		else {
-			navGrid->FindPath(transform.GetWorldPosition(), player->GetTransform().GetWorldPosition(), pathToPlayer);
-
-			pathToPlayer.PopWaypoint(currentGoalPos);
-			pathToPlayer.PopWaypoint(currentGoalPos);
-			pathToPlayer.PopWaypoint(currentGoalPos);
-			physicsObject->SetAngularVelocity(Vector3(0, 0, 0));
-			physicsObject->SetLinearVelocity(Vector3(0, 0, 0));
-			physicsObject->AddForce((currentGoalPos - transform.GetWorldPosition()) * 15.0f);
+		if (distanceFromGoal > followHeight * 2.0f) {
+			physicsObject->AddForce((currentGoalPos - transform.GetWorldPosition()) * followSpeed);
+		} else {
+			if (navGrid->FindPath(transform.GetWorldPosition(), player->GetTransform().GetWorldPosition(), pathToPlayer)) {
+				pathToPlayer.PopWaypoint(currentGoalPos);
+				pathToPlayer.PopWaypoint(currentGoalPos);
+				pathToPlayer.PopWaypoint(currentGoalPos);
+				physicsObject->AddForce((currentGoalPos - transform.GetWorldPosition()) * followSpeed);
+			}
 		}
 	}
-	/*if (taken) {
-		pathToPlayer.DrawDebugLine();
-		Debug::DrawLine(currentGoalPos, Vector3(currentGoalPos.x, 20, currentGoalPos.z), Vector4(1, 1, 1, 1));
-
-		// recalc after 2 sec
-		delay += dt;
-		if (delay > 3) {
-			delay = 0.0f;
-			navGrid->FindPath(transform.GetWorldPosition(), player->GetTransform().GetWorldPosition(), pathToPlayer);
-			pathToPlayer.PopWaypoint(currentGoalPos);
-		}
-			
-		float distanceFromGoal = (transform.GetWorldPosition() - currentGoalPos).Length();
-		std::cout << distanceFromGoal << std::endl;
-		if (distanceFromGoal > 0.5f) {
-			physicsObject->AddForce((currentGoalPos - transform.GetWorldPosition()) * 1.0f);
-		} else {
-			navGrid->FindPath(transform.GetWorldPosition(), player->GetTransform().GetWorldPosition(), pathToPlayer);
-			pathToPlayer.PopWaypoint(currentGoalPos);
-		}
-	}*/
 }
 
 void Apple::OnCollisionBegin(GameObject* otherObject)
 {
 	if (dynamic_cast<PlayerObject*>(otherObject) != nullptr) {
 		transform.SetWorldScale(Vector3(1, 1, 1));
-		player = (PlayerObject*)otherObject;
+		if (player == nullptr) {
+			player = (PlayerObject*)otherObject;
+		}
+	}
+}
+
+void Apple::OnCollisionEnd(GameObject* otherObject)
+{
+	if (dynamic_cast<PlayerObject*>(otherObject) != nullptr) {
+		navGrid->FindPath(transform.GetWorldPosition(), player->GetTransform().GetWorldPosition(), pathToPlayer);
+		pathToPlayer.PopWaypoint(currentGoalPos);
 		taken = true;
 	}
 }

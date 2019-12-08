@@ -25,6 +25,7 @@ namespace NCL {
 				waypoints.pop_back();
 				return true;
 			}
+			bool isEmpty() { return waypoints.empty(); }
 
 			void DrawDebugLine() {
 				for (int i = 1; i < waypoints.size(); ++i) {

@@ -18,10 +18,8 @@ public:
 	virtual void OnCollisionEnd(GameObject* otherObject) override;
 
 	float getMoveForce() { return moveForce; };
-
 	void move(Vector3 axis);
 
 private:
 	const float moveForce = 50.0f;
 };
-

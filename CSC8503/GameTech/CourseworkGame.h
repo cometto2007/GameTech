@@ -3,6 +3,7 @@
 #include "PlayerObject.h"
 #include "Apple.h"
 #include "Water.h"
+#include "HumanEnemy.h"
 #include "../CSC8503Common/PhysicsSystem.h"
 #include "../CSC8503Common/NavigationGrid.h"
 
@@ -57,6 +58,7 @@ namespace NCL {
 			OGLMesh* charB = nullptr;
 
 			vector<Apple*> apples;
+			HumanEnemy* e;
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject = nullptr;
