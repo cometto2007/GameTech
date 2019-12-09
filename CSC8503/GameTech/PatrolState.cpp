@@ -1,11 +1,13 @@
 #define _USE_MATH_DEFINES
 
 #include "PatrolState.h"
+#include "FollowShootingState.h"
 #include <cmath>
 
-NCL::CSC8503::PatrolState::PatrolState(HumanEnemy* enemy)
+NCL::CSC8503::PatrolState::PatrolState(HumanEnemy* enemy, PlayerObject* player)
 {
 	this->enemy = enemy;
+	this->player = player;
 	patrolRadius = 25.0f;
 	setPatrolPositions(10);
 	currentPatrolGoal = 0;
@@ -38,7 +40,14 @@ void NCL::CSC8503::PatrolState::Update()
 PushdownState::PushdownResult NCL::CSC8503::PatrolState::PushdownUpdate(PushdownState** pushResult)
 {
 	Update();
+	float distance = (enemy->GetTransform().GetWorldPosition() - player->GetTransform().GetWorldPosition()).Length();
+	if (distance < patrolRadius) {
+		FollowShootingState* state = new FollowShootingState(enemy, player);
+		*pushResult = state;
+		return PushdownResult::Push;
+	}
 	return PushdownResult::NoChange;
+	
 }
 
 void NCL::CSC8503::PatrolState::setPatrolPositions(int numPos)

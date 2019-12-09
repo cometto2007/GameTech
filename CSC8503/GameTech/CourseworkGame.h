@@ -3,10 +3,11 @@
 #include "PlayerObject.h"
 #include "Apple.h"
 #include "Water.h"
-#include "HumanEnemy.h"
+//#include "HumanEnemy.h"
 #include "../CSC8503Common/PhysicsSystem.h"
 #include "../CSC8503Common/NavigationGrid.h"
 
+class HumanEnemy;
 namespace NCL {
 	namespace CSC8503 {
 		class CourseworkGame {
@@ -16,6 +17,10 @@ namespace NCL {
 
 			void InitWorld();
 			void InitCamera();
+
+			GameObject* AddSphereToWorld(const Vector3& position, float radius, float inverseMass);
+			void AddObjectToWorld(GameObject* obj) { world->AddGameObject(obj); };
+			PlayerObject* getPlayer() { return player; };
 
 			virtual void UpdateGame(float dt);
 
@@ -66,6 +71,8 @@ namespace NCL {
 			void LockCameraToObject(GameObject* o) {
 				lockedObject = o;
 			}
+			void BridgeConstraintTest();
+			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass, Vector4 col);
 		};
 	}
 }

@@ -6,11 +6,11 @@
 
 namespace NCL {
 	namespace CSC8503 {
-		class PatrolState : public PushdownState
+		class FollowShootingState : public PushdownState
 		{
 		public:
-			PatrolState(HumanEnemy* enemy, PlayerObject* player);
-			~PatrolState();
+			FollowShootingState(HumanEnemy* enemy, PlayerObject* player);
+			~FollowShootingState();
 
 			virtual void OnAwake();
 			virtual void OnSleep();
@@ -19,15 +19,11 @@ namespace NCL {
 
 			PushdownResult PushdownUpdate(PushdownState** pushResult) override;
 		private:
-			HumanEnemy* enemy;
 			PlayerObject* player;
-			float patrolRadius;
+			HumanEnemy* enemy;
+			float maxChasingDist;
 
-			vector<Vector3> patrolPos;
-			int currentPatrolGoal;
-
-			void setPatrolPositions(int numPos);
+			int shootDelay;
 		};
 	}
 }
-

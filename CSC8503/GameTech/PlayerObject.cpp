@@ -30,5 +30,6 @@ void PlayerObject::OnCollisionEnd(GameObject* otherObject)
 
 void PlayerObject::move(Vector3 axis)
 {
+	axis.Normalise();
 	physicsObject->AddForce(axis * moveForce);
 }

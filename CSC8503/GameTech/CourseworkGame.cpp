@@ -5,6 +5,7 @@
 #include "../../Plugins/OpenGLRendering/OGLTexture.h"
 #include "../../Common/TextureLoader.h"
 #include "Utility.h"
+#include "HumanEnemy.h"
 #include "../CSC8503Common/PositionConstraint.h"
 #include "Menu.h"
 
@@ -148,6 +149,7 @@ void CourseworkGame::movePlayer() {
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) player->move(rightAxis);	
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) player->move(-fwdAxis);
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) player->move(fwdAxis);
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) player->move(Vector3(0,1,0));
 }
 
 void  CourseworkGame::LockedCameraMovement() {
@@ -244,13 +246,15 @@ void CourseworkGame::InitWorld() {
 	world->AddGameObject(player);
 	LockCameraToObject(player);
 
-	//AddParkKeeperToWorld(Vector3(80, 0, 120));
 
 	AddFloorToWorld(Vector3(50, -1, 50), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	AddFloorToWorld(Vector3(150, -1, 50), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	AddFloorToWorld(Vector3(50, -1, 150), Vector3(12.5f, 1, 12.5f), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	AddFloorToWorld(Vector3(150, -1, 150), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	world->AddGameObject(new Water(Vector3(50, -3, 150), Vector3(50, 1, 50), cubeMesh, basicShader));
+	world->AddGameObject(new Water(Vector3(50, -2, 150), Vector3(50, 1, 50), cubeMesh, basicShader));
+
+	AddFloorToWorld(Vector3(150, -1, 90), Vector3(50, 1, 10), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
+	AddFloorToWorld(Vector3(150, -1, 35), Vector3(50, 1, 35), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
+	AddFloorToWorld(Vector3(167.5f, -1, 75), Vector3(32.5f, 1, 5), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 
 	for (size_t i = 0; i < 20; i++) {
 		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);
@@ -261,8 +265,10 @@ void CourseworkGame::InitWorld() {
 	apples.push_back(a);
 	world->AddGameObject(a);
 
-	e = new HumanEnemy(Vector3(45, 3, 150), charA, basicShader);
+	e = new HumanEnemy(Vector3(150, 3, 50), charA, basicShader, this);
 	world->AddGameObject(e);
+
+	BridgeConstraintTest();
 }
 
 //From here on it's functions to add in objects to the world!
@@ -316,4 +322,72 @@ GameObject* CourseworkGame::AddParkKeeperToWorld(const Vector3& position)
 	world->AddGameObject(keeper);
 
 	return keeper;
+}
+
+GameObject* CourseworkGame::AddSphereToWorld(const Vector3& position, float radius, float inverseMass) {
+	GameObject* sphere = new GameObject();
+
+	Vector3 sphereSize = Vector3(radius, radius, radius);
+	SphereVolume* volume = new SphereVolume(radius);
+	sphere->SetBoundingVolume((CollisionVolume*)volume);
+	sphere->GetTransform().SetWorldScale(sphereSize);
+	sphere->GetTransform().SetWorldPosition(position);
+
+	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
+	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
+
+	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
+	sphere->GetPhysicsObject()->InitSphereInertia();
+
+	world->AddGameObject(sphere);
+
+	return sphere;
+}
+
+void CourseworkGame::BridgeConstraintTest() {
+	Vector3 cubeSize = Vector3(1.5f, 0.1f, 4);
+
+	float	invCubeMass = 1;
+	int		numLinks = 4;
+	float	maxDistance = 5.5f;
+	float	cubeDistance = 5;
+
+	Vector3 startPos = Vector3(100, 0, 75);
+	Vector4 col(0.72f, 0.44f, 0.05f, 1.0f);
+
+	GameObject* start = AddCubeToWorld(startPos + Vector3(2, -0.5f, 0), cubeSize, 0, col);
+	GameObject* end = AddCubeToWorld(startPos + Vector3((numLinks + 2) * cubeDistance, -0.5f, 0), cubeSize, 0, col);
+	GameObject* previous = start;
+
+	for (int i = 0; i < numLinks; ++i) {
+		GameObject* block = AddCubeToWorld(startPos + Vector3((i + 1) * cubeDistance, 0, 0), cubeSize, invCubeMass, col);
+		PositionConstraint* constraint = new PositionConstraint(previous, block, maxDistance);
+		world->AddConstraint(constraint);
+		previous = block;
+	}
+
+	PositionConstraint* constraint = new PositionConstraint(previous, end, maxDistance);
+	world->AddConstraint(constraint);
+}
+
+GameObject* CourseworkGame::AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass, Vector4 col)
+{
+	GameObject* cube = new GameObject();
+	AABBVolume* volume = new AABBVolume(dimensions);
+
+	cube->SetBoundingVolume((CollisionVolume*)volume);
+
+	cube->GetTransform().SetWorldPosition(position);
+	cube->GetTransform().SetWorldScale(dimensions);
+
+	cube->SetRenderObject(new RenderObject(&cube->GetTransform(), cubeMesh, nullptr, basicShader));
+	cube->GetRenderObject()->SetColour(col);
+	cube->SetPhysicsObject(new PhysicsObject(&cube->GetTransform(), cube->GetBoundingVolume()));
+
+	cube->GetPhysicsObject()->SetInverseMass(inverseMass);
+	cube->GetPhysicsObject()->InitCubeInertia();
+
+	world->AddGameObject(cube);
+
+	return cube;
 }

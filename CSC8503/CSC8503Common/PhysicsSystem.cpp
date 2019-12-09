@@ -217,6 +217,14 @@ void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, Collis
 	Vector3 fullVelocityB = physB->GetLinearVelocity() + angVelocityB;
 	
 	Vector3 contactVelocity = fullVelocityB - fullVelocityA;
+
+	if (totalMass == 0.0f) {
+		return;
+	}
+	if (Vector3::Dot(contactVelocity, p.normal) > 0) {
+		return;
+	}
+
 	float impulseForce = Vector3::Dot(contactVelocity, p.normal);
 	
 	// now to work out the effect of inertia ....
@@ -377,6 +385,7 @@ void PhysicsSystem::IntegrateVelocity(float dt) {
 		if (object == nullptr) {
 			continue;
 		}
+
 		Transform & transform = (*i)->GetTransform();
 		// Position Stuff
 		Vector3 position = transform.GetLocalPosition();

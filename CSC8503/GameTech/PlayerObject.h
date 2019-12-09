@@ -21,5 +21,5 @@ public:
 	void move(Vector3 axis);
 
 private:
-	const float moveForce = 50.0f;
+	const float moveForce = 100.0f;
 };

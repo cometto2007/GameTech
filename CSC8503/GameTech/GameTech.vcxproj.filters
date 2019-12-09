@@ -69,8 +69,11 @@
     <ClCompile Include="HumanEnemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FollowShootingState.cpp">
+      <Filter>State</Filter>
+    </ClCompile>
     <ClCompile Include="PatrolState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,8 +119,11 @@
     <ClInclude Include="HumanEnemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FollowShootingState.h">
+      <Filter>State</Filter>
+    </ClInclude>
     <ClInclude Include="PatrolState.h">
-      <Filter>Header Files</Filter>
+      <Filter>State</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

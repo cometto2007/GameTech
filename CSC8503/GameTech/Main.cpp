@@ -157,8 +157,7 @@ int main() {
 	w->ShowOSPointer(false);
 	w->LockMouseToWindow(true);
 
-	/*
-	TutorialGame* g = new TutorialGame();
+	/*TutorialGame* g = new TutorialGame();
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
 		float dt = w->GetTimer()->GetTimeDeltaSeconds();
 
@@ -178,15 +177,12 @@ int main() {
 		w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
 
 		g->UpdateGame(dt);
-	}
-	*/
+	}*/
 
 	PushdownMachine* pushdownMachine = new PushdownMachine();
 	pushdownMachine->addState(new MenuState());
 
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
-		//testGrid->DebugDisplayGrid();
-		//DisplayPathfinding();
 		pushdownMachine->Update();
 	}
 
