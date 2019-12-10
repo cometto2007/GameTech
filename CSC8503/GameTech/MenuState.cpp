@@ -18,8 +18,11 @@ MenuState::MenuState()
 	mainMenu->addChoice("New Game");
 	mainMenu->addChoice("Resume");
 	mainMenu->addChoice("Scores");
+	mainMenu->addChoice("Run as Server");
+	mainMenu->addChoice("Run as Client");
 
 	gamestate = new GameState();
+	netGgamestate = new NetworkGameState();
 }
 
 void MenuState::OnAwake()
@@ -31,6 +34,7 @@ void MenuState::OnSleep()
 {
 	if (mainMenu->getSelChoice() == 0) {
 		gamestate->initGame();
+		netGgamestate->initGame();
 	}
 }
 
@@ -42,10 +46,14 @@ void MenuState::Update()
 
 PushdownState::PushdownResult MenuState::PushdownUpdate(PushdownState** pushResult)
 {
+	// ADD CHOICE FOR NETWORK GAME TYPE
 	Update();
 	if (mainMenu->isEnterPressed()) {
 		if (mainMenu->getSelChoice() == 0 || mainMenu->getSelChoice() == 1) {
 			*pushResult = (PushdownState*)gamestate;
+			return PushdownResult::Push;
+		} else if (mainMenu->getSelChoice() == 3 || mainMenu->getSelChoice() == 4) {
+			*pushResult = (PushdownState*)netGgamestate;
 			return PushdownResult::Push;
 		}
 	}

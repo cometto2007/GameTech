@@ -1,8 +1,8 @@
 #pragma once
-
 #include "GameState.h"
 #include "../CSC8503Common/PushdownState.h"
 #include "Menu.h"
+#include "NetworkGameState.h"
 
 
 namespace NCL {
@@ -24,6 +24,7 @@ namespace NCL {
 		private:
 			Menu* mainMenu;
 			GameState* gamestate;
+			NetworkGameState* netGgamestate;
 		};
 	}
 }
