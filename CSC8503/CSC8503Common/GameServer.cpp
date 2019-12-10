@@ -1,5 +1,6 @@
 #include "GameServer.h"
 #include "GameWorld.h"
+#include "../GameTech/NetworkedGame.h"
 #include <iostream>
 
 using namespace NCL;
@@ -73,6 +74,7 @@ void GameServer::UpdateServer() {
 
 		if (type == ENetEventType::ENET_EVENT_TYPE_CONNECT) {
 			std::cout << "Server: New client connected" << std::endl;
+			game->addServerPlayer(peer);
 			NewPlayerPacket player(peer);
 			SendGlobalPacket(player);
 		}

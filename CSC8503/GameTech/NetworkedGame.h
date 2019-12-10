@@ -1,5 +1,6 @@
 #pragma once
 #include "TutorialGame.h"
+#include "CourseworkGame.h"
 
 namespace NCL {
 	namespace CSC8503 {
@@ -7,7 +8,7 @@ namespace NCL {
 		class GameClient;
 		class NetworkPlayer;
 
-		class NetworkedGame : public TutorialGame, public PacketReceiver {
+		class NetworkedGame : public CourseworkGame, public PacketReceiver {
 		public:
 			NetworkedGame();
 			~NetworkedGame();
@@ -23,6 +24,10 @@ namespace NCL {
 
 			void ReceivePacket(int type, GamePacket* payload, int source) override;
 
+			void addServerPlayer(int id) { 
+				serverPlayers.insert(std::make_pair(id, nullptr)); // TODO: FIXXXXXXX
+			}
+
 			void OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b);
 
 		protected:
@@ -31,6 +36,7 @@ namespace NCL {
 
 			void BroadcastSnapshot(bool deltaFrame);
 			void UpdateMinimumState();
+
 			std::map<int, int> stateIDs;
 
 			GameServer* thisServer;
@@ -39,7 +45,6 @@ namespace NCL {
 			int packetsToSnapshot;
 
 			std::vector<NetworkObject*> networkObjects;
-
 			std::map<int, GameObject*> serverPlayers;
 			GameObject* localPlayer;
 		};

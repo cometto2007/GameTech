@@ -71,7 +71,7 @@ namespace NCL {
 			void LockCameraToObject(GameObject* o) {
 				lockedObject = o;
 			}
-			void BridgeConstraintTest();
+			void AddBridgeConstraint();
 			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass, Vector4 col);
 		};
 	}

@@ -328,6 +328,25 @@ void TutorialGame::InitWorld() {
 	//AddFloorToWorld(Vector3(0, -2, 0));
 }
 
+void NCL::CSC8503::TutorialGame::moveObject(GameObject* obj, KeyboardKeys k)
+{
+	float yaw = Window::GetMouse()->GetRelativePosition().x;
+	Quaternion newOr = Quaternion::EulerAnglesToQuaternion(0, -yaw * 2.5f, 0) * obj->GetTransform().GetLocalOrientation();
+	obj->GetTransform().SetLocalOrientation(newOr);
+
+	Matrix4 view = world->GetMainCamera()->BuildViewMatrix();
+	Matrix4 camWorld = view.Inverse();
+	Vector3 rightAxis = Vector3(camWorld.GetColumn(0));
+	Vector3 fwdAxis = obj->GetTransform().GetLocalMatrix().GetColumn(2);
+	
+	Vector3 axis;
+	if (k == KeyboardKeys::LEFT) axis = -rightAxis;
+	if (k == KeyboardKeys::RIGHT) axis = rightAxis;
+	if (k == KeyboardKeys::DOWN) axis = -fwdAxis;
+	if (k == KeyboardKeys::UP) axis = fwdAxis;
+	if (k == KeyboardKeys::SPACE) axis = Vector3(0, 1, 0);
+}
+
 //From here on it's functions to add in objects to the world!
 
 /*
@@ -424,6 +443,8 @@ GameObject* TutorialGame::AddGooseToWorld(const Vector3& position)
 	goose->GetPhysicsObject()->InitSphereInertia();
 
 	world->AddGameObject(goose);
+
+	this->ghostGoose = goose;
 
 	return goose;
 }

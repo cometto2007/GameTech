@@ -66,13 +66,16 @@
     <ClCompile Include="Loader.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="HumanEnemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FollowShootingState.cpp">
       <Filter>State</Filter>
     </ClCompile>
     <ClCompile Include="PatrolState.cpp">
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="HumanEnemy.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkGameState.cpp">
       <Filter>State</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,13 +119,16 @@
     <ClInclude Include="Loader.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="HumanEnemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FollowShootingState.h">
       <Filter>State</Filter>
     </ClInclude>
     <ClInclude Include="PatrolState.h">
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="HumanEnemy.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkGameState.h">
       <Filter>State</Filter>
     </ClInclude>
   </ItemGroup>

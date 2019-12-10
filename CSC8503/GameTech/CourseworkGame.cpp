@@ -165,7 +165,7 @@ void  CourseworkGame::LockedCameraMovement() {
 		Vector3 angles = q.ToEuler(); //nearly there now!
 
 		world->GetMainCamera()->SetPosition(camPos);
-		world->GetMainCamera()->SetPitch(angles.x);
+		world->GetMainCamera()->SetPitch(angles.x + 5);
 		world->GetMainCamera()->SetYaw(angles.y);
 	}
 }
@@ -230,7 +230,7 @@ bool CourseworkGame::SelectObject() {
 
 void CourseworkGame::InitCamera() {
 	world->GetMainCamera()->SetNearPlane(0.5f);
-	world->GetMainCamera()->SetFarPlane(2000.0f);
+	world->GetMainCamera()->SetFarPlane(1000.0f);
 	world->GetMainCamera()->SetPitch(-15.0f);
 	world->GetMainCamera()->SetYaw(315.0f);
 	world->GetMainCamera()->SetPosition(Vector3(-60, 40, 60));
@@ -268,7 +268,7 @@ void CourseworkGame::InitWorld() {
 	e = new HumanEnemy(Vector3(150, 3, 50), charA, basicShader, this);
 	world->AddGameObject(e);
 
-	BridgeConstraintTest();
+	AddBridgeConstraint();
 }
 
 //From here on it's functions to add in objects to the world!
@@ -344,7 +344,7 @@ GameObject* CourseworkGame::AddSphereToWorld(const Vector3& position, float radi
 	return sphere;
 }
 
-void CourseworkGame::BridgeConstraintTest() {
+void CourseworkGame::AddBridgeConstraint() {
 	Vector3 cubeSize = Vector3(1.5f, 0.1f, 4);
 
 	float	invCubeMass = 1;

@@ -16,11 +16,15 @@ namespace NCL {
 
 			void SendPacket(GamePacket&  payload);
 
+			int getNetworkState() { return networkState; };
+			void setNetworkState(int state) {this->networkState = state; };
+
 			void UpdateClient();
 		protected:	
 			//void ThreadedUpdate();
 
 			ENetPeer*	netPeer;
+			int networkState;
 			//std::atomic<bool>	threadAlive;
 			//std::thread			updateThread;
 		};

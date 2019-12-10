@@ -32,7 +32,9 @@ private:
 	Vector3 testPos;
 
 	bool taken;
-	float followSpeed;
+	float followSpeed = 50.0f;
 	float followHeight;
+
+	void getRightGoalPos(Vector3 goalPos);
 };
 

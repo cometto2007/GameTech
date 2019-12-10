@@ -31,6 +31,7 @@ namespace NCL {
 			char	buttonstates[8];
 
 			ClientPacket() {
+				type = Received_State;
 				size = sizeof(ClientPacket);
 			}
 		};
