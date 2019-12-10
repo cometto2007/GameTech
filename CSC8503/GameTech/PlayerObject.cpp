@@ -2,7 +2,7 @@
 
 using namespace NCL;
 
-PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* shader)
+PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, bool isNetworkObj)
 {
 	float size = 1.0f;
 	float inverseMass = 0.6f;
@@ -18,6 +18,10 @@ PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* sha
 
 	physicsObject->SetInverseMass(inverseMass);
 	physicsObject->InitSphereInertia();
+
+	if (isNetworkObj) {
+		networkObject = new NetworkObject(*this, loader.getNewId());
+	}
 }
 
 void PlayerObject::OnCollisionBegin(GameObject* otherObject)

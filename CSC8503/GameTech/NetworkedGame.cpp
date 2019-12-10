@@ -5,9 +5,11 @@
 
 #define COLLISION_MSG 30
 
-NetworkedGame::NetworkedGame()
+NetworkedGame::NetworkedGame(bool isServer)
 {
 	NetworkBase::Initialise();
+	if (isServer) StartAsServer();
+	else StartAsClient(127, 0, 0, 1);
 }
 
 NetworkedGame::~NetworkedGame()
@@ -29,6 +31,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 	thisClient = new GameClient();
 	thisClient->RegisterPacketHandler(Full_State, this);
 	thisClient->RegisterPacketHandler(Delta_State, this);
+	thisClient->RegisterPacketHandler(Player_Connected, this);
 	bool canConnect = thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
 	if (canConnect) std::cout << "Client Connected" << std::endl;
 	else std::cout << "Impossible connect client" << std::endl;
@@ -36,7 +39,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 
 void NetworkedGame::UpdateAsServer(float dt)
 {
-	
+	BroadcastSnapshot(true);
 }
 
 void NetworkedGame::UpdateAsClient(float dt)
@@ -96,7 +99,7 @@ void NetworkedGame::UpdateMinimumState()
 
 void NetworkedGame::UpdateGame(float dt)
 {
-	TutorialGame::UpdateGame(dt);
+	CourseworkGame::UpdateGame(dt);
 	if (thisServer != nullptr) {
 		UpdateAsServer(dt);
 		thisServer->UpdateServer();
@@ -114,37 +117,36 @@ void NetworkedGame::SpawnPlayer()
 void NetworkedGame::StartLevel()
 {
 	TutorialGame::TutorialGame();
-	if (thisClient != nullptr) {
-		ghostGoose->SetNetworkObject(new NetworkObject(*ghostGoose, 2));
-	}
 }
 
 void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 {
 	if (type == Received_State) {
 		ClientPacket* cp = (ClientPacket*)payload;
+		PlayerObject* netPlayer = (PlayerObject*)serverPlayers.at(source);
 		if (cp->buttonstates[0]) {
-			moveObject(serverPlayers.at(source), KeyboardKeys::LEFT);
+			movePlayerByKey(KeyboardKeys::LEFT, netPlayer);
 		}
 		if (cp->buttonstates[1]) {
-			moveObject(serverPlayers.at(source), KeyboardKeys::RIGHT);
+			movePlayerByKey(KeyboardKeys::RIGHT, netPlayer);
 		}
 		if (cp->buttonstates[2]) {
-			moveObject(serverPlayers.at(source), KeyboardKeys::DOWN);
+			movePlayerByKey(KeyboardKeys::DOWN, netPlayer);
 		}
 		if (cp->buttonstates[3]) {
-			moveObject(serverPlayers.at(source), KeyboardKeys::UP);
+			movePlayerByKey(KeyboardKeys::UP, netPlayer);
 		}
 		if (cp->buttonstates[4]) {
-			moveObject(serverPlayers.at(source), KeyboardKeys::SPACE);
+			movePlayerByKey(KeyboardKeys::SPACE, netPlayer);
 		}
-		GamePacket* gp;
-		serverPlayers.at(source)->GetNetworkObject()->WritePacket(&gp, true, cp->lastID++);
+		GamePacket* gp = new GamePacket();
+		netPlayer->GetNetworkObject()->WritePacket(&gp, true, cp->lastID);
 		thisServer->SendGlobalPacket(*gp);
-	}
-	else if (type == Delta_State) {
+	} else if (type == Delta_State) {
 		DeltaPacket* cp = (DeltaPacket*)payload;
 
+	} else if (type == Player_Connected) {
+		GamePacket* p;
 	}
 	
 

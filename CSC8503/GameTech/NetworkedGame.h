@@ -10,7 +10,7 @@ namespace NCL {
 
 		class NetworkedGame : public CourseworkGame, public PacketReceiver {
 		public:
-			NetworkedGame();
+			NetworkedGame(bool isServer);
 			~NetworkedGame();
 
 			void StartAsServer();
@@ -25,7 +25,9 @@ namespace NCL {
 			void ReceivePacket(int type, GamePacket* payload, int source) override;
 
 			void addServerPlayer(int id) { 
-				serverPlayers.insert(std::make_pair(id, nullptr)); // TODO: FIXXXXXXX
+				PlayerObject* netPl = new PlayerObject(Vector3(55, 2, 150), gooseMesh, basicShader, true);
+				serverPlayers.insert(std::make_pair(id, netPl));
+				world->AddGameObject(netPl);
 			}
 
 			void OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b);

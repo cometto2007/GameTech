@@ -22,7 +22,7 @@ MenuState::MenuState()
 	mainMenu->addChoice("Run as Client");
 
 	gamestate = new GameState();
-	netGgamestate = new NetworkGameState();
+	
 }
 
 void MenuState::OnAwake()
@@ -52,8 +52,11 @@ PushdownState::PushdownResult MenuState::PushdownUpdate(PushdownState** pushResu
 		if (mainMenu->getSelChoice() == 0 || mainMenu->getSelChoice() == 1) {
 			*pushResult = (PushdownState*)gamestate;
 			return PushdownResult::Push;
-		} else if (mainMenu->getSelChoice() == 3 || mainMenu->getSelChoice() == 4) {
-			*pushResult = (PushdownState*)netGgamestate;
+		} else if (mainMenu->getSelChoice() == 3) {
+			*pushResult = (PushdownState*) new NetworkGameState(true);
+			return PushdownResult::Push;
+		} else if (mainMenu->getSelChoice() == 4) {
+			*pushResult = (PushdownState*) new NetworkGameState(false);
 			return PushdownResult::Push;
 		}
 	}

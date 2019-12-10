@@ -158,7 +158,7 @@ int main() {
 	w->LockMouseToWindow(true);
 
 	//TutorialGame* g = new TutorialGame();
-	NetworkedGame* g = new NetworkedGame();
+	/*NetworkedGame* g = new NetworkedGame();
 	NetworkedGame* g1 = new NetworkedGame();
 	g->StartAsServer();
 	g1->StartAsClient(127, 0, 0, 1);
@@ -183,16 +183,15 @@ int main() {
 
 		g->UpdateGame(dt);
 		g1->UpdateGame(dt);
-	}
+	}*/
 
-	/*PushdownMachine* pushdownMachine = new PushdownMachine();
+	PushdownMachine* pushdownMachine = new PushdownMachine();
 	pushdownMachine->addState(new MenuState());
 
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
-		w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
 		pushdownMachine->Update();
 	}
 
-	Loader::getInstance().Destroy();*/
+	Loader::getInstance().Destroy();
 	Window::DestroyGameWindow();
 }

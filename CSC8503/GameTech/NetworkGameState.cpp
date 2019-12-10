@@ -1,9 +1,10 @@
 #include "NetworkGameState.h"
 
-NetworkGameState::NetworkGameState()
+NetworkGameState::NetworkGameState(bool isServer)
 {
-	this->game = new NetworkedGame();
+	this->game = new NetworkedGame(isServer);
 	this->isOnGoing = false;
+	this->isServer = isServer;
 }
 
 void NetworkGameState::Update()

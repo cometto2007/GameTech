@@ -15,11 +15,16 @@ namespace NCL {
 			void Destroy();
 
 			NavigationGrid* getFloatingGrid() { return floatingGrid; };
+			int getNewId() { 
+				id++;
+				return id - 1;
+			};
 
 		private:
 			Loader();
 
 			NavigationGrid* floatingGrid;
+			int id = 0;
 		};
 	}
 }

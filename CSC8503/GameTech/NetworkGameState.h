@@ -9,7 +9,7 @@ namespace NCL {
 		class NetworkGameState : public PushdownState
 		{
 		public:
-			NetworkGameState();
+			NetworkGameState(bool isServer);
 			~NetworkGameState() {};
 
 			virtual void OnAwake() {};
@@ -23,6 +23,7 @@ namespace NCL {
 		private:
 			NetworkedGame* game;
 			bool isOnGoing;
+			bool isServer;
 		};
 	}
 }

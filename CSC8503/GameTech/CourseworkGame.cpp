@@ -93,7 +93,6 @@ void CourseworkGame::UpdateGame(float dt) {
 
 	Debug::FlushRenderables();
 
-	movePlayer();
 	for (Apple* a : apples) {
 		a->followPlayer(dt);
 	}
@@ -133,23 +132,15 @@ void CourseworkGame::UpdateKeys() {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F8)) {
 		world->ShuffleObjects(false);
 	}
-}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) movePlayerByKey(KeyboardKeys::LEFT, player);
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) movePlayerByKey(KeyboardKeys::RIGHT, player);
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) movePlayerByKey(KeyboardKeys::DOWN, player);
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) movePlayerByKey(KeyboardKeys::UP, player);
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) movePlayerByKey(KeyboardKeys::SPACE, player);
 
-void CourseworkGame::movePlayer() {
 	float yaw = Window::GetMouse()->GetRelativePosition().x;
 	Quaternion newOr = Quaternion::EulerAnglesToQuaternion(0, -yaw * 2.5f, 0) * player->GetTransform().GetLocalOrientation();
 	player->GetTransform().SetLocalOrientation(newOr);
-
-	Matrix4 view = world->GetMainCamera()->BuildViewMatrix();
-	Matrix4 camWorld = view.Inverse();
-	Vector3 rightAxis = Vector3(camWorld.GetColumn(0));
-	Vector3 fwdAxis = player->GetTransform().GetLocalMatrix().GetColumn(2);
-
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) player->move(-rightAxis);
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) player->move(rightAxis);	
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) player->move(-fwdAxis);
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) player->move(fwdAxis);
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) player->move(Vector3(0,1,0));
 }
 
 void  CourseworkGame::LockedCameraMovement() {
@@ -242,7 +233,7 @@ void CourseworkGame::InitWorld() {
 	apples.clear();
 	physics->Clear();
 
-	player = new PlayerObject(Vector3(50, 2, 150), gooseMesh, basicShader);
+	player = new PlayerObject(Vector3(50, 2, 150), gooseMesh, basicShader, true);
 	world->AddGameObject(player);
 	LockCameraToObject(player);
 
@@ -322,6 +313,20 @@ GameObject* CourseworkGame::AddParkKeeperToWorld(const Vector3& position)
 	world->AddGameObject(keeper);
 
 	return keeper;
+}
+
+void NCL::CSC8503::CourseworkGame::movePlayerByKey(KeyboardKeys k, PlayerObject* obj)
+{
+	Matrix4 view = world->GetMainCamera()->BuildViewMatrix();
+	Matrix4 camWorld = view.Inverse();
+	Vector3 rightAxis = Vector3(camWorld.GetColumn(0));
+	Vector3 fwdAxis = player->GetTransform().GetLocalMatrix().GetColumn(2);
+
+	if (k == KeyboardKeys::LEFT) player->move(-rightAxis);
+	if (k == KeyboardKeys::RIGHT) player->move(rightAxis);
+	if (k == KeyboardKeys::DOWN) player->move(-fwdAxis);
+	if (k == KeyboardKeys::UP) player->move(fwdAxis);
+	if (k == KeyboardKeys::SPACE) player->move(Vector3(0, 1, 0));
 }
 
 GameObject* CourseworkGame::AddSphereToWorld(const Vector3& position, float radius, float inverseMass) {

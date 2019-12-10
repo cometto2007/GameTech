@@ -29,12 +29,12 @@ namespace NCL {
 
 			void UpdateKeys();
 			bool SelectObject();
-
-			void movePlayer();
 			void LockedCameraMovement();
 
 			GameObject* AddFloorToWorld(const Vector3& position, Vector3 floorSize, OGLTexture* text, Vector4 col);
 			GameObject* AddParkKeeperToWorld(const Vector3& position);
+
+			void movePlayerByKey(KeyboardKeys k, PlayerObject* obj);
 
 			NavigationGrid* navGrid;
 
