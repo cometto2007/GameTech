@@ -2,7 +2,7 @@
 
 using namespace NCL;
 
-PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, bool isNetworkObj)
+PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, bool isNetworkObj, bool isEnemy)
 {
 	float size = 1.0f;
 	float inverseMass = 0.6f;
@@ -21,6 +21,9 @@ PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* sha
 
 	if (isNetworkObj) {
 		networkObject = new NetworkObject(*this, loader.getNewId());
+	}
+	if (isEnemy) {
+		renderObject->SetColour(Vector4(1, 0, 0, 1));
 	}
 }
 

@@ -34,7 +34,6 @@ void MenuState::OnSleep()
 {
 	if (mainMenu->getSelChoice() == 0) {
 		gamestate->initGame();
-		netGgamestate->initGame();
 	}
 }
 

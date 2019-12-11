@@ -24,7 +24,7 @@ namespace NCL {
 			//void ThreadedUpdate();
 
 			ENetPeer*	netPeer;
-			int networkState;
+			int networkState = 0;
 			//std::atomic<bool>	threadAlive;
 			//std::thread			updateThread;
 		};

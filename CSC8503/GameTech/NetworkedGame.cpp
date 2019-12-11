@@ -22,6 +22,7 @@ void NetworkedGame::StartAsServer()
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 2);
 	thisServer->setGame(this);
 	thisServer->RegisterPacketHandler(Received_State, this);
+	player->GetNetworkObject()->setNetworkId(100);
 	
 	std::cout << "Server Connected" << std::endl;
 }
@@ -31,7 +32,8 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 	thisClient = new GameClient();
 	thisClient->RegisterPacketHandler(Full_State, this);
 	thisClient->RegisterPacketHandler(Delta_State, this);
-	thisClient->RegisterPacketHandler(Player_Connected, this);
+	player->GetNetworkObject()->setNetworkId(101);
+
 	bool canConnect = thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
 	if (canConnect) std::cout << "Client Connected" << std::endl;
 	else std::cout << "Impossible connect client" << std::endl;
@@ -39,36 +41,45 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 
 void NetworkedGame::UpdateAsServer(float dt)
 {
-	BroadcastSnapshot(true);
+	// TODO: add logic for delta and full packet
+	BroadcastSnapshot(false);
 }
 
 void NetworkedGame::UpdateAsClient(float dt)
 {
-	ClientPacket newPacket;
-	bool buttonPressed = false;
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-		newPacket.buttonstates[0] = 1;
-		buttonPressed = true;
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-		newPacket.buttonstates[1] = 1;
-		buttonPressed = true;
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-		newPacket.buttonstates[2] = 1;
-		buttonPressed = true;
-	} 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-		newPacket.buttonstates[3] = 1;
-		buttonPressed = true;
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) {
-		newPacket.buttonstates[4] = 1;
-		buttonPressed = true;
-	} 
-	if (buttonPressed) {
-		newPacket.lastID = thisClient->getNetworkState();
-		thisClient->SendPacket(newPacket);
+	if (!blockMovement) {
+		ClientPacket newPacket;
+		bool buttonPressed = false;
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
+			newPacket.buttonstates[0] = 1;
+			buttonPressed = true;
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
+			newPacket.buttonstates[1] = 1;
+			buttonPressed = true;
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
+			newPacket.buttonstates[2] = 1;
+			buttonPressed = true;
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+			newPacket.buttonstates[3] = 1;
+			buttonPressed = true;
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) {
+			newPacket.buttonstates[4] = 1;
+			buttonPressed = true;
+		}
+		Vector2 relativePos = Window::GetMouse()->GetRelativePosition();
+		if (relativePos.x != 0) {
+			newPacket.buttonstates[5] = 1;
+			newPacket.xVar = relativePos.x;
+			buttonPressed = true;
+		}
+		if (buttonPressed) {
+			newPacket.lastID = thisClient->getNetworkState();
+			thisClient->SendPacket(newPacket);
+		}
 	}
 }
 
@@ -84,12 +95,16 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 		if (!o) {
 			continue;
 		}
-		int playerState = 0; // You 'll need to do this bit !
 		GamePacket * newPacket = nullptr;
 		if (o->WritePacket(&newPacket, deltaFrame, playerState)) {
-			thisServer->SendGlobalPacket(*newPacket); // change ...
+			thisServer->SendGlobalPacket(*newPacket);
 			delete newPacket;
 		}
+	}
+	GamePacket* newPacket = nullptr;
+	if (player->GetNetworkObject()->WritePacket(&newPacket, deltaFrame, playerState)) {
+		thisServer->SendGlobalPacket(*newPacket);
+		delete newPacket;
 	}
 }
 
@@ -97,15 +112,23 @@ void NetworkedGame::UpdateMinimumState()
 {
 }
 
+void NCL::CSC8503::NetworkedGame::changePlayerRotationFromVar(PlayerObject* obj, float var)
+{
+	Quaternion newOr = Quaternion::EulerAnglesToQuaternion(0, -var * 2.5f, 0) * obj->GetTransform().GetLocalOrientation();
+	obj->GetTransform().SetLocalOrientation(newOr);
+}
+
 void NetworkedGame::UpdateGame(float dt)
 {
 	CourseworkGame::UpdateGame(dt);
 	if (thisServer != nullptr) {
+		Window::GetWindow()->SetTitle("Server");
 		UpdateAsServer(dt);
 		thisServer->UpdateServer();
 	} 
 	if (thisClient != nullptr) {
 		UpdateAsClient(dt);
+		Window::GetWindow()->SetTitle("Client");
 		thisClient->UpdateClient();
 	} 
 }
@@ -121,37 +144,61 @@ void NetworkedGame::StartLevel()
 
 void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 {
+	PlayerObject* netPlayer;
 	if (type == Received_State) {
+		netPlayer = getPlayerBySource(101);
 		ClientPacket* cp = (ClientPacket*)payload;
-		PlayerObject* netPlayer = (PlayerObject*)serverPlayers.at(source);
-		if (cp->buttonstates[0]) {
+		if (cp->buttonstates[0] == 1) {
 			movePlayerByKey(KeyboardKeys::LEFT, netPlayer);
 		}
-		if (cp->buttonstates[1]) {
+		if (cp->buttonstates[1] == 1) {
 			movePlayerByKey(KeyboardKeys::RIGHT, netPlayer);
 		}
-		if (cp->buttonstates[2]) {
+		if (cp->buttonstates[2] == 1) {
 			movePlayerByKey(KeyboardKeys::DOWN, netPlayer);
 		}
-		if (cp->buttonstates[3]) {
+		if (cp->buttonstates[3] == 1) {
 			movePlayerByKey(KeyboardKeys::UP, netPlayer);
 		}
-		if (cp->buttonstates[4]) {
+		if (cp->buttonstates[4] == 1) {
 			movePlayerByKey(KeyboardKeys::SPACE, netPlayer);
 		}
-		GamePacket* gp = new GamePacket();
-		netPlayer->GetNetworkObject()->WritePacket(&gp, true, cp->lastID);
-		thisServer->SendGlobalPacket(*gp);
-	} else if (type == Delta_State) {
-		DeltaPacket* cp = (DeltaPacket*)payload;
-
-	} else if (type == Player_Connected) {
-		GamePacket* p;
+		if (cp->buttonstates[5] == 1) {
+			changePlayerRotationFromVar(netPlayer, cp->xVar);
+		}
+		GamePacket* newPacket = nullptr;
+		if (netPlayer->GetNetworkObject()->WritePacket(&newPacket, false, 101)) {
+			thisServer->SendGlobalPacket(*newPacket);
+			delete newPacket;
+		}
+	} else if (type == Full_State) {
+		FullPacket* fp = (FullPacket*)payload;
+		if (fp->objectID != 101) { // if 0 is the player itself
+			netPlayer = getPlayerBySource(100);
+			thisClient->setNetworkState(fp->fullState.stateID);
+			if (netPlayer != nullptr) {
+				netPlayer->GetNetworkObject()->ReadPacket(*fp);
+			} else {
+				PlayerObject* newNetPlayer = new PlayerObject(fp->fullState.position, gooseMesh, basicShader, true, true);
+				newNetPlayer->GetNetworkObject()->setNetworkId(100);
+				serverPlayers.insert(std::make_pair(100, newNetPlayer));
+				world->AddGameObject(newNetPlayer);
+			}
+		} else {
+			player->GetNetworkObject()->ReadPacket(*fp);
+		}
 	}
-	
+}
 
-
-	// if client raise networkState
+PlayerObject* NCL::CSC8503::NetworkedGame::getPlayerBySource(int source)
+{
+	PlayerObject* netPlayer;
+	try {
+		netPlayer = (PlayerObject*)serverPlayers.at(source);
+	} catch (std::out_of_range& const e) {
+		netPlayer = nullptr;
+	}
+	return netPlayer;
 }
 
 void NetworkedGame::OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b)

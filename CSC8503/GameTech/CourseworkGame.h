@@ -44,6 +44,7 @@ namespace NCL {
 
 			bool useGravity;
 			bool inSelectionMode;
+			bool blockMovement;
 
 			float		forceMagnitude;
 

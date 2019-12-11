@@ -29,6 +29,7 @@ namespace NCL {
 		struct ClientPacket : public GamePacket {
 			int		lastID;
 			char	buttonstates[8];
+			float	xVar;
 
 			ClientPacket() {
 				type = Received_State;
@@ -47,6 +48,9 @@ namespace NCL {
 			virtual bool WritePacket(GamePacket** p, bool deltaFrame, int stateID);
 
 			void UpdateStateHistory(int minID);
+
+
+			void setNetworkId(int id) { this->networkID = id; };
 
 		protected:
 

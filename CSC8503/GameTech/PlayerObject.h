@@ -12,7 +12,7 @@ using namespace CSC8503;
 class PlayerObject : public GameObject
 {
 public:
-	PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, bool isNetworkObj = false);
+	PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, bool isNetworkObj = false, bool isEnemy = false);
 	~PlayerObject() {};
 
 	virtual void OnCollisionBegin(GameObject* otherObject) override;

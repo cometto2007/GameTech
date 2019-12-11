@@ -24,9 +24,12 @@ namespace NCL {
 
 			void ReceivePacket(int type, GamePacket* payload, int source) override;
 
+			PlayerObject* getPlayerBySource(int source);
+
 			void addServerPlayer(int id) { 
-				PlayerObject* netPl = new PlayerObject(Vector3(55, 2, 150), gooseMesh, basicShader, true);
-				serverPlayers.insert(std::make_pair(id, netPl));
+				PlayerObject* netPl = new PlayerObject(Vector3(55, 2, 150), gooseMesh, basicShader, true, true);
+				netPl->GetNetworkObject()->setNetworkId(101);
+				serverPlayers.insert(std::make_pair(101, netPl));
 				world->AddGameObject(netPl);
 			}
 
@@ -39,6 +42,8 @@ namespace NCL {
 			void BroadcastSnapshot(bool deltaFrame);
 			void UpdateMinimumState();
 
+			void changePlayerRotationFromVar(PlayerObject* obj, float var);
+
 			std::map<int, int> stateIDs;
 
 			GameServer* thisServer;
@@ -48,6 +53,8 @@ namespace NCL {
 
 			std::vector<NetworkObject*> networkObjects;
 			std::map<int, GameObject*> serverPlayers;
+			int playerState = 0;
+			int currentServerPacket = 0;
 			GameObject* localPlayer;
 		};
 	}

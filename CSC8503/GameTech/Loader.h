@@ -24,7 +24,7 @@ namespace NCL {
 			Loader();
 
 			NavigationGrid* floatingGrid;
-			int id = 0;
+			int id = 10;
 		};
 	}
 }

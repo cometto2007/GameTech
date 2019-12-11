@@ -301,6 +301,40 @@ void PhysicsSystem::BroadPhase() {
 	});
 }
 
+void PhysicsSystem::OptimazedBroadPhase() {
+	broadphaseCollisions.clear();
+	QuadTree < GameObject*> treeStatic(Vector2(1024, 1024), 7, 6);
+	QuadTree < GameObject*> treeDynamic(Vector2(1024, 1024), 7, 6);
+
+	std::vector < GameObject* >::const_iterator first;
+	std::vector < GameObject* >::const_iterator last;
+	gameWorld.GetObjectIterators(first, last);
+	for (auto i = first; i != last; ++i) {
+		Vector3 halfSizes;
+		if (!(*i)->GetBroadphaseAABB(halfSizes)) {
+			continue;
+		}
+		Vector3 pos = (*i)->GetConstTransform().GetWorldPosition();
+		if ((*i)->GetPhysicsObject()->GetInverseMass() == 0) {
+			treeStatic.Insert(*i, pos, halfSizes);
+		} else {
+			treeDynamic.Insert(*i, pos, halfSizes);
+		}
+	}
+	/*tree.OperateOnContents([&](std::list <QuadTreeEntry<GameObject*>>& data) {
+		CollisionDetection::CollisionInfo info;
+		for (auto i = data.begin(); i != data.end(); ++i) {
+			for (auto j = std::next(i); j != data.end(); ++j) {
+				// is this pair of items already in the collision set -
+				// if the same pair is in another quadtree node together etc
+				info.a = min((*i).object, (*j).object);
+				info.b = max((*i).object, (*j).object);
+				broadphaseCollisions.insert(info);
+			}
+		}
+		});*/
+}
+
 /*
 The broadphase will now only give us likely collisions, so we can now go through them,
 and work out if they are truly colliding, and if so, add them into the main collision list
