@@ -19,6 +19,7 @@ namespace NCL {
 
 			PushdownResult PushdownUpdate(PushdownState** pushResult) override;
 			bool getIsOnGoing() { return isOnGoing; };
+			CourseworkGame* getGame() { return game; };
 			void initGame();
 		private:
 			CourseworkGame* game;

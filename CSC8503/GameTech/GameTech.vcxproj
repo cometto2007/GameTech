@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="Apple.cpp" />
     <ClCompile Include="CourseworkGame.cpp" />
+    <ClCompile Include="FinalScreenState.cpp" />
     <ClCompile Include="FollowShootingState.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="GameTechRenderer.cpp" />
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="Apple.h" />
     <ClInclude Include="CourseworkGame.h" />
+    <ClInclude Include="FinalScreenState.h" />
     <ClInclude Include="FollowShootingState.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GameTechRenderer.h" />

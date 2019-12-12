@@ -10,6 +10,7 @@ NetworkGameState::NetworkGameState(bool isServer)
 void NetworkGameState::Update()
 {
 	float dt = Window::GetWindow()->GetTimer()->GetTimeDeltaSeconds();
+	std::cout << dt << std::endl;
 	this->game->UpdateGame(dt);
 }
 

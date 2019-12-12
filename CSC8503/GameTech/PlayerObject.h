@@ -19,9 +19,11 @@ public:
 	virtual void OnCollisionEnd(GameObject* otherObject) override;
 
 	float getMoveForce() { return moveForce; };
+	bool getIsEnemy() { return isEnemy; };
 	void move(Vector3 axis);
 
 private:
 	Loader loader = Loader::getInstance();
 	const float moveForce = 100.0f;
+	bool isEnemy;
 };

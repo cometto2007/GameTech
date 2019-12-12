@@ -17,6 +17,8 @@ public:
 
 	void followPlayer(float dt);
 
+	bool getIsTaken() { return taken; };
+
 	virtual void OnCollisionBegin(GameObject* otherObject) override;
 	virtual void OnCollisionEnd(GameObject* otherObject) override;
 private:

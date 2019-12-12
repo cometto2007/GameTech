@@ -1,31 +1,28 @@
 #pragma once
-#include "GameState.h"
 #include "../CSC8503Common/PushdownState.h"
+#include "GameState.h"
 #include "Menu.h"
-#include "NetworkGameState.h"
-#include "FinalScreenState.h"
-
 
 namespace NCL {
 	namespace CSC8503 {
-		class MenuState : public PushdownState
+		class FinalScreenState : public PushdownState
 		{
 		public:
-			MenuState();
-			~MenuState() {};
+			FinalScreenState(int points);
+			~FinalScreenState() {};
 
 			virtual void OnAwake();
 			virtual void OnSleep();
 
 			virtual void Update();
 
+
 			PushdownResult PushdownUpdate(PushdownState** pushResult) override;
 
-			Menu* getMainMenu() { return mainMenu; };
 		private:
-			Menu* mainMenu;
-			GameState* gamestate;
-			NetworkGameState* netGgamestate;
+			int points;
+			Menu* finalMenu;
 		};
 	}
 }
+

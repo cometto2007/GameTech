@@ -88,6 +88,21 @@ void NavigationGrid::DebugDisplayGrid() {
 	} 
 }
 
+GridNode* getNearestPoint(GridNode* x, GridNode* gridNode, size_t t) {
+	float distance = FLT_MAX;
+	GridNode* init = nullptr;
+	for (size_t i = 0; i < t; i++) {
+		if (gridNode[i].type == 'x')
+			continue;
+		float tau = (gridNode[i].position - x->position).Length();
+		if (std::abs(tau  - distance) < 0.00001) {
+			distance = tau;
+			init = gridNode + i;
+		}
+	}
+	return init;
+}
+
 bool NavigationGrid::FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) {
 	// need to work out which node 'from ' sits in , and 'to ' sits in
 	int fromX = (from.x / nodeSize);
@@ -104,7 +119,11 @@ bool NavigationGrid::FindPath(const Vector3& from, const Vector3& to, Navigation
 		return false; // outside of map region !
 	}
 	GridNode* startNode = &allNodes[(fromZ * gridWidth) + fromX];
+	//startNode = getNearestPoint(startNode, allNodes, gridWidth * gridHeight - 1);
+	if (!startNode) return false;
 	GridNode* endNode = &allNodes[(toZ * gridWidth) + toX];
+	//endNode = getNearestPoint(endNode, allNodes, gridWidth * gridHeight - 1);
+	if (!endNode) return false;
 	
 	std::vector <GridNode*> openList;
 	std::vector <GridNode*> closedList;

@@ -9,13 +9,14 @@ NCL::CSC8503::GameState::GameState()
 void NCL::CSC8503::GameState::Update()
 {
 	float dt = Window::GetWindow()->GetTimer()->GetTimeDeltaSeconds();
+	std::cout << dt;
 	this->game->UpdateGame(dt);
 }
 
 PushdownState::PushdownResult NCL::CSC8503::GameState::PushdownUpdate(PushdownState** pushResult)
 {
 	Update();
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::P)) {
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::P) || game->getRemainingTime() <= 0) {
 		return PushdownResult::Pop;
 	} else {
 		return PushdownResult::NoChange;

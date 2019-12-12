@@ -79,13 +79,18 @@ void CourseworkGame::UpdateGame(float dt) {
 
 	UpdateKeys();
 
-	if (useGravity) {
+	/*if (useGravity) {
 		Debug::Print("(G)ravity on", Vector2(10, 40));
 	}
 	else {
 		Debug::Print("(G)ravity off", Vector2(10, 40));
-	}
+	}*/
 
+	double secondsPassed = (clock() - startTime) / CLOCKS_PER_SEC;
+	remainingTime = (int)(gameSecDuration - secondsPassed);
+	Vector2 pos = Window::GetWindow()->GetScreenSize();
+	Debug::Print("Time " + std::to_string(remainingTime), Vector2(pos.x / 2 - 150, pos.y - 40));
+	Debug::Print("Points " + std::to_string(points), Vector2(pos.x / 2 - 150, pos.y - 60));
 	SelectObject();
 
 	world->UpdateWorld(dt);
@@ -98,6 +103,7 @@ void CourseworkGame::UpdateGame(float dt) {
 		a->followPlayer(dt);
 	}
 	e->getBehaviour()->Update();
+	checkLetApples();
 	renderer->Render();
 }
 
@@ -189,39 +195,30 @@ bool CourseworkGame::SelectObject() {
 		}
 	}
 	if (inSelectionMode) {
-		renderer->DrawString("Press Q to change to camera mode!", Vector2(10, 0));
+		if (selectionObject != nullptr) {
+			Vector3 pos = selectionObject->GetTransform().GetWorldPosition();
+			Vector3 or = selectionObject->GetTransform().GetWorldOrientation().ToEuler();
+			renderer->DrawString("position x: " + std::to_string(pos.x), Vector2(10, 40));
+			renderer->DrawString("position y: " + std::to_string(pos.y), Vector2(10, 20));
+			renderer->DrawString("position z: " + std::to_string(pos.z), Vector2(10, 0));
+
+			renderer->DrawString("orientation x: " + std::to_string(or.x), Vector2(10, 100));
+			renderer->DrawString("orientation y: " + std::to_string(or.y), Vector2(10, 80));
+			renderer->DrawString("orientation z: " + std::to_string(or.z), Vector2(10, 60));
+		}
 
 		if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::LEFT)) {
-			if (selectionObject) {	//set colour to deselected;
-				selectionObject->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
-				selectionObject = nullptr;
-			}
-
 			Ray ray = CollisionDetection::BuildRayFromMouse(*world->GetMainCamera());
-
 
 			RayCollision closestCollision;
 			if (world->Raycast(ray, closestCollision, true)) {
 				selectionObject = (GameObject*)closestCollision.node;
-				selectionObject->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 				return true;
 			} else {
+				selectionObject = nullptr;
 				return false;
 			}
 		}
-		if (Window::GetKeyboard()->KeyPressed(NCL::KeyboardKeys::L)) {
-			if (selectionObject) {
-				if (lockedObject == selectionObject) {
-					lockedObject = nullptr;
-				}
-				else {
-					lockedObject = selectionObject;
-				}
-			}
-		}
-	}
-	else {
-		renderer->DrawString("Press Q to change to select mode!", Vector2(10, 0));
 	}
 	return false;
 }
@@ -240,13 +237,18 @@ void CourseworkGame::InitWorld() {
 	apples.clear();
 	physics->Clear();
 
+	startTime = clock(); 
+	gameSecDuration = 180;
+	remainingTime = gameSecDuration;
+
 	player = new PlayerObject(Vector3(50, 2, 150), gooseMesh, basicShader, true);
 	world->AddGameObject(player);
 	LockCameraToObject(player);
 
+	islandPosition = Vector3(50, -1, 150);
 
 	AddFloorToWorld(Vector3(50, -1, 50), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
-	AddFloorToWorld(Vector3(50, -1, 150), Vector3(12.5f, 1, 12.5f), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
+	AddFloorToWorld(islandPosition, Vector3(12.5f, 1, 12.5f), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	AddFloorToWorld(Vector3(150, -1, 150), Vector3(50, 1, 50), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	world->AddGameObject(new Water(Vector3(50, -2, 150), Vector3(50, 1, 50), cubeMesh, basicShader));
 
@@ -256,12 +258,14 @@ void CourseworkGame::InitWorld() {
 
 	for (size_t i = 0; i < 20; i++) {
 		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);
+		a->GetRenderObject()->SetColour(Vector4(0.85f, 0.22f, 0.14f, 1.0f));
 		apples.push_back(a);
 		world->AddGameObject(a);
 	}
-	Apple* a = new Apple(Vector3(55, 3, 150), appleMesh, basicShader);
+	/*Apple* a = new Apple(Vector3(55, 3, 150), appleMesh, basicShader);
+	a->GetRenderObject()->SetColour(Vector4(0.85f, 0.22f, 0.14f, 1.0f));
 	apples.push_back(a);
-	world->AddGameObject(a);
+	world->AddGameObject(a);*/
 
 	e = new HumanEnemy(Vector3(150, 3, 50), charA, basicShader, this);
 	world->AddGameObject(e);
@@ -402,4 +406,18 @@ GameObject* CourseworkGame::AddCubeToWorld(const Vector3& position, Vector3 dime
 	world->AddGameObject(cube);
 
 	return cube;
+}
+
+void NCL::CSC8503::CourseworkGame::checkLetApples()
+{
+	float distance = (player->GetTransform().GetWorldPosition() - islandPosition).Length();
+	if (distance < 10) {
+		for (size_t i = 0; i < apples.size(); i++) {
+			if (apples[i]->getIsTaken()) {
+				world->RemoveGameObject(apples[i]);
+				apples.erase(apples.begin() + i);
+				points++;
+			}
+		}
+	}
 }

@@ -68,6 +68,10 @@ namespace NCL {
 				return inverseInteriaTensor;
 			}
 
+			void SetElasticity(float val) {
+				elasticity = val;
+			}
+
 		protected:
 			const CollisionVolume* volume;
 			Transform*		transform;

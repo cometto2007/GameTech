@@ -6,6 +6,7 @@ PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* sha
 {
 	float size = 1.0f;
 	float inverseMass = 0.6f;
+	this->isEnemy = isEnemy;
 
 	SphereVolume* volume = new SphereVolume(size);
 	boundingVolume = (CollisionVolume*)volume;
@@ -18,6 +19,7 @@ PlayerObject::PlayerObject(Vector3 position, MeshGeometry* mesh, ShaderBase* sha
 
 	physicsObject->SetInverseMass(inverseMass);
 	physicsObject->InitSphereInertia();
+	physicsObject->SetElasticity(0);
 
 	if (isNetworkObj) {
 		networkObject = new NetworkObject(*this, loader.getNewId());
@@ -39,4 +41,5 @@ void PlayerObject::move(Vector3 axis)
 {
 	axis.Normalise();
 	physicsObject->AddForce(axis * moveForce);
+	//std::cout << axis * moveForce;
 }

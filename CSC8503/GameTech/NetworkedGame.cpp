@@ -2,6 +2,9 @@
 #include "NetworkPlayer.h"
 #include "../CSC8503Common/GameServer.h"
 #include "../CSC8503Common/GameClient.h"
+#include <algorithm>
+#include <regex>
+
 
 #define COLLISION_MSG 30
 
@@ -22,6 +25,7 @@ void NetworkedGame::StartAsServer()
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 2);
 	thisServer->setGame(this);
 	thisServer->RegisterPacketHandler(Received_State, this);
+	thisServer->RegisterPacketHandler(String_Message, this);
 	player->GetNetworkObject()->setNetworkId(100);
 	
 	std::cout << "Server Connected" << std::endl;
@@ -32,6 +36,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 	thisClient = new GameClient();
 	thisClient->RegisterPacketHandler(Full_State, this);
 	thisClient->RegisterPacketHandler(Delta_State, this);
+	thisClient->RegisterPacketHandler(String_Message, this);
 	player->GetNetworkObject()->setNetworkId(101);
 
 	bool canConnect = thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
@@ -120,17 +125,46 @@ void NCL::CSC8503::NetworkedGame::changePlayerRotationFromVar(PlayerObject* obj,
 
 void NetworkedGame::UpdateGame(float dt)
 {
+	float screenY = Window::GetWindow()->GetScreenSize().y;
+	float screenX = Window::GetWindow()->GetScreenSize().x / 2;
+		
 	CourseworkGame::UpdateGame(dt);
 	if (thisServer != nullptr) {
 		Window::GetWindow()->SetTitle("Server");
 		UpdateAsServer(dt);
+		renderer->DrawString("g1 " + std::to_string(points), Vector2(20, screenY - 20), Vector4(1, 0, 0, 1));
+		renderer->DrawString("g2 " + std::to_string(g2Points), Vector2(20, screenY - 40), Vector4(1, 0, 0, 1));
 		thisServer->UpdateServer();
-	} 
+	}
 	if (thisClient != nullptr) {
 		UpdateAsClient(dt);
 		Window::GetWindow()->SetTitle("Client");
+		renderer->DrawString("g1 " + std::to_string(points), Vector2(20, screenY - 20), Vector4(1, 0, 0, 1));
+		renderer->DrawString("g2 " + std::to_string(g2Points), Vector2(20, screenY - 40), Vector4(1, 0, 0, 1));
 		thisClient->UpdateClient();
-	} 
+	}
+	if (!gameIsFinish) {
+		if (thisServer != nullptr) {
+			this->thisServer->SendGlobalPacket(StringPacket(std::to_string(points)));
+		}
+		else {
+			this->thisClient->SendPacket(StringPacket(std::to_string(points)));
+		}
+		if (apples.size() <= 0) {
+			gameIsFinish = true;
+			if (thisServer != nullptr) {
+				thisServer->SendGlobalPacket(StringPacket("Winner"));
+			} else {
+				this->thisClient->SendPacket(StringPacket(std::to_string(points)));
+				thisClient->SendPacket(StringPacket("Winner"));
+			}
+		}
+	} else {
+		renderer->DrawString("Leaderboards", Vector2(screenX - 200, screenY / 2 + 20), Vector4(1, 1, 0, 1));
+		for (size_t i = 0; i < leaderboards.size(); i++) {
+			renderer->DrawString(std::to_string(leaderboards[i]), Vector2(screenX, screenY/2 - i * 25), Vector4(1, 1, 0, 1));
+		}
+	}
 }
 
 void NetworkedGame::SpawnPlayer()
@@ -139,13 +173,13 @@ void NetworkedGame::SpawnPlayer()
 
 void NetworkedGame::StartLevel()
 {
-	TutorialGame::TutorialGame();
 }
 
 void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 {
 	PlayerObject* netPlayer;
 	if (type == Received_State) {
+		// From server to client
 		netPlayer = getPlayerBySource(101);
 		ClientPacket* cp = (ClientPacket*)payload;
 		if (cp->buttonstates[0] == 1) {
@@ -166,16 +200,11 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 		if (cp->buttonstates[5] == 1) {
 			changePlayerRotationFromVar(netPlayer, cp->xVar);
 		}
-		GamePacket* newPacket = nullptr;
-		if (netPlayer->GetNetworkObject()->WritePacket(&newPacket, false, 101)) {
-			thisServer->SendGlobalPacket(*newPacket);
-			delete newPacket;
-		}
 	} else if (type == Full_State) {
 		FullPacket* fp = (FullPacket*)payload;
 		if (fp->objectID != 101) { // if 0 is the player itself
 			netPlayer = getPlayerBySource(100);
-			thisClient->setNetworkState(fp->fullState.stateID);
+			//thisClient->setNetworkState(fp->fullState.stateID);
 			if (netPlayer != nullptr) {
 				netPlayer->GetNetworkObject()->ReadPacket(*fp);
 			} else {
@@ -186,6 +215,41 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 			}
 		} else {
 			player->GetNetworkObject()->ReadPacket(*fp);
+		}
+	} else if (type == String_Message) {
+		StringPacket* realPacket = (StringPacket*)payload;
+		string msg = realPacket->GetStringFromData();
+		if (thisServer != nullptr) {
+			std::cout << msg << std::endl;
+			if (msg == "Winner") {
+				gameIsFinish = true;
+				leaderboards.push_back(points);
+				leaderboards.push_back(g2Points);
+				string scores = "";
+				sort(leaderboards.begin(), leaderboards.end());
+				for (int i = 0; i < leaderboards.size(); i++) {
+					scores += leaderboards[i] + " ";
+				}
+				thisServer->SendGlobalPacket(StringPacket(scores));
+			} else {
+				g2Points = stoi(msg);
+			}
+		} else {
+			if (msg == "Winner") {
+				gameIsFinish = true;
+			} else {
+				if (gameIsFinish) {
+					std::regex ws_re("\\s+");
+					std::vector<std::string> result {
+						std::sregex_token_iterator(msg.begin(), msg.end(), ws_re, -1), {}
+					};
+					for (string s : result) {
+						if (s != "") leaderboards.push_back(stoi(s));
+					}
+				} else {
+					g2Points = stoi(msg);
+				}
+			}
 		}
 	}
 }

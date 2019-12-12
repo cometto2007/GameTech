@@ -1,4 +1,5 @@
 #pragma once
+
 #include "TutorialGame.h"
 #include "CourseworkGame.h"
 
@@ -50,6 +51,10 @@ namespace NCL {
 			GameClient* thisClient;
 			float timeToNextPacket;
 			int packetsToSnapshot;
+			int g2Points;
+			bool gameIsFinish = false;
+
+			vector<int> leaderboards;
 
 			std::vector<NetworkObject*> networkObjects;
 			std::map<int, GameObject*> serverPlayers;

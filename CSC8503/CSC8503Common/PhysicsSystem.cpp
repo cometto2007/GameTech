@@ -344,16 +344,30 @@ void PhysicsSystem::NarrowPhase() {
 		i = broadphaseCollisions.begin();
 		i != broadphaseCollisions.end(); ++i) {
 		CollisionDetection::CollisionInfo info = *i;
+		bool insert = true;
 		if (CollisionDetection::ObjectIntersection(info.a, info.b, info)) {
+			PlayerObject* obj1 = dynamic_cast<PlayerObject*>(info.a);
+			PlayerObject* obj2 = dynamic_cast<PlayerObject*>(info.b);
 			if ((dynamic_cast<Water*>(info.a) != nullptr) ||
 				(dynamic_cast<Water*>(info.b) != nullptr)) {
 				ResolveSpringCollision(*info.a, *info.b, info.point);
+			} else {
+				if (info.a->GetPhysicsObject()->GetInverseMass() == 0 ||
+					info.b->GetPhysicsObject()->GetInverseMass() == 0) {
+					ImpulseResolveCollision(*info.a, *info.b, info.point);
+				} else {
+					if (!((obj1 != nullptr && obj1->getIsEnemy()) || (obj2 != nullptr && obj2->getIsEnemy()))) {
+						ImpulseResolveCollision(*info.a, *info.b, info.point);
+					}
+					else {
+						insert = false;
+					}
+				}
 			}
-			else {
-				ImpulseResolveCollision(*info.a, *info.b, info.point);
+			if (insert) {
+				info.framesLeft = numCollisionFrames;
+				allCollisions.insert(info); // insert into our main set
 			}
-			info.framesLeft = numCollisionFrames;
-			allCollisions.insert(info); // insert into our main set
 		}
 	}
 }

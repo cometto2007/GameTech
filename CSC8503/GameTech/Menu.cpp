@@ -26,6 +26,15 @@ void Menu::displayMenu()
 	}
 }
 
+void Menu::displayMenu(int points)
+{
+	float screenY = Window::GetWindow()->GetScreenSize().y / 2;
+	renderer->Render();
+
+	renderer->DrawString("Your final score is " + std::to_string(points), Vector2(20, screenY), Vector4(1, 0, 0, 1));
+	renderer->DrawString(choices[0], Vector2(20, 10), Vector4(1, 0, 0, 1));
+}
+
 void Menu::interact()
 {
 		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN)) {

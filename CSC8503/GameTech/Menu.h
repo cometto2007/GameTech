@@ -14,6 +14,7 @@ public:
 
 	void addChoice(std::string choice);
 	void displayMenu();
+	void displayMenu(int points);
 	void interact();
 	int getSelChoice() { return selChoice; };
 

@@ -31,6 +31,7 @@ void Apple::followPlayer(float dt)
 		if (distanceFromGoal > followHeight * 2.0f) {
 			physicsObject->AddForce(axis * followSpeed);
 		} else {
+			pathToPlayer.Clear();
 			if (navGrid->FindPath(transform.GetWorldPosition(), player->GetTransform().GetWorldPosition(), pathToPlayer)) {
 				//getRightGoalPos(currentGoalPos);
 				pathToPlayer.PopWaypoint(currentGoalPos);

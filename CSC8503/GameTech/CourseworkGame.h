@@ -21,6 +21,8 @@ namespace NCL {
 			GameObject* AddSphereToWorld(const Vector3& position, float radius, float inverseMass);
 			void AddObjectToWorld(GameObject* obj) { world->AddGameObject(obj); };
 			PlayerObject* getPlayer() { return player; };
+			int getRemainingTime() { return remainingTime; };
+			int getPoints() { return points; }
 
 			virtual void UpdateGame(float dt);
 
@@ -63,8 +65,16 @@ namespace NCL {
 			OGLMesh* charA = nullptr;
 			OGLMesh* charB = nullptr;
 
+			int points = 0;
+
 			vector<Apple*> apples;
 			HumanEnemy* e;
+			Vector3 islandPosition;
+
+			// Timer
+			clock_t startTime;
+			double gameSecDuration;
+			int remainingTime;
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject = nullptr;
@@ -74,6 +84,7 @@ namespace NCL {
 			}
 			void AddBridgeConstraint();
 			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass, Vector4 col);
+			void checkLetApples();
 		};
 	}
 }

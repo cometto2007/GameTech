@@ -22,12 +22,10 @@ MenuState::MenuState()
 	mainMenu->addChoice("Run as Client");
 
 	gamestate = new GameState();
-	
 }
 
 void MenuState::OnAwake()
 {
-	
 }
 
 void MenuState::OnSleep()
@@ -45,10 +43,14 @@ void MenuState::Update()
 
 PushdownState::PushdownResult MenuState::PushdownUpdate(PushdownState** pushResult)
 {
-	// ADD CHOICE FOR NETWORK GAME TYPE
+	if (gamestate->getGame()->getRemainingTime() <= 0) {
+		*pushResult = (PushdownState*) new FinalScreenState(gamestate->getGame()->getPoints());
+		return PushdownResult::Push;
+	}
 	Update();
 	if (mainMenu->isEnterPressed()) {
 		if (mainMenu->getSelChoice() == 0 || mainMenu->getSelChoice() == 1) {
+			gamestate = new GameState();
 			*pushResult = (PushdownState*)gamestate;
 			return PushdownResult::Push;
 		} else if (mainMenu->getSelChoice() == 3) {
@@ -61,6 +63,3 @@ PushdownState::PushdownResult MenuState::PushdownUpdate(PushdownState** pushResu
 	}
 	return PushdownResult::NoChange;
 }
-
-
-
