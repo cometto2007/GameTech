@@ -25,7 +25,12 @@ namespace NCL {
 
 			void ReceivePacket(int type, GamePacket* payload, int source) override;
 
+			vector<int> getLeaderboard() { return leaderboards; }
+			bool getIsFinish() { return gameIsFinish; }
+
 			PlayerObject* getPlayerBySource(int source);
+
+			void setGameIsFinish(bool b) { gameIsFinish = b; };
 
 			void addServerPlayer(int id) { 
 				PlayerObject* netPl = new PlayerObject(Vector3(55, 2, 150), gooseMesh, basicShader, true, true);
@@ -39,6 +44,7 @@ namespace NCL {
 		protected:
 			void UpdateAsServer(float dt);
 			void UpdateAsClient(float dt);
+			vector<string> splitStringIntoVector(string s);
 
 			void BroadcastSnapshot(bool deltaFrame);
 			void UpdateMinimumState();

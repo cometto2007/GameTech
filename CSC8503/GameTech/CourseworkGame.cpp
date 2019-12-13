@@ -256,7 +256,7 @@ void CourseworkGame::InitWorld() {
 	AddFloorToWorld(Vector3(150, -1, 35), Vector3(50, 1, 35), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	AddFloorToWorld(Vector3(167.5f, -1, 75), Vector3(32.5f, 1, 5), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 
-	for (size_t i = 0; i < 20; i++) {
+	for (size_t i = 0; i < 2; i++) {
 		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);
 		a->GetRenderObject()->SetColour(Vector4(0.85f, 0.22f, 0.14f, 1.0f));
 		apples.push_back(a);

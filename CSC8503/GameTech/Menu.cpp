@@ -35,6 +35,19 @@ void Menu::displayMenu(int points)
 	renderer->DrawString(choices[0], Vector2(20, 10), Vector4(1, 0, 0, 1));
 }
 
+void Menu::displayMenu(std::vector<int> leaderboards, int time)
+{
+	renderer->Render();
+
+	float screenY = Window::GetWindow()->GetScreenSize().y;
+	float screenX = Window::GetWindow()->GetScreenSize().x / 2;
+	renderer->DrawString("Respawn in " + std::to_string(time), Vector2(screenX - 200, screenY - 20), Vector4(1, 1, 0, 1));
+	renderer->DrawString("Leaderboards", Vector2(screenX - 200, screenY / 2 + 20), Vector4(1, 1, 0, 1));
+	for (size_t i = 0; i < leaderboards.size(); i++) {
+		renderer->DrawString(std::to_string(leaderboards[i]), Vector2(screenX, screenY / 2 - i * 25), Vector4(1, 1, 0, 1));
+	}
+}
+
 void Menu::interact()
 {
 		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN)) {

@@ -81,6 +81,9 @@
     <ClCompile Include="FinalScreenState.cpp">
       <Filter>State</Filter>
     </ClCompile>
+    <ClCompile Include="FinalScreenNetworkingState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameTechRenderer.h">
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="FinalScreenState.h">
       <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="FinalScreenNetworkingState.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

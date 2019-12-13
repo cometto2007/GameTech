@@ -4,6 +4,10 @@
 #include "../CSC8503Common/GameClient.h"
 #include <algorithm>
 #include <regex>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
 
 
 #define COLLISION_MSG 30
@@ -17,7 +21,8 @@ NetworkedGame::NetworkedGame(bool isServer)
 
 NetworkedGame::~NetworkedGame()
 {
-	NetworkBase::Destroy();
+	delete this->thisServer;
+	this->thisClient->Destroy();
 }
 
 void NetworkedGame::StartAsServer()
@@ -26,6 +31,7 @@ void NetworkedGame::StartAsServer()
 	thisServer->setGame(this);
 	thisServer->RegisterPacketHandler(Received_State, this);
 	thisServer->RegisterPacketHandler(String_Message, this);
+	thisServer->RegisterPacketHandler(Player_Disconnected, this);
 	player->GetNetworkObject()->setNetworkId(100);
 	
 	std::cout << "Server Connected" << std::endl;
@@ -46,7 +52,6 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 
 void NetworkedGame::UpdateAsServer(float dt)
 {
-	// TODO: add logic for delta and full packet
 	BroadcastSnapshot(false);
 }
 
@@ -86,6 +91,15 @@ void NetworkedGame::UpdateAsClient(float dt)
 			thisClient->SendPacket(newPacket);
 		}
 	}
+}
+
+vector<string> NCL::CSC8503::NetworkedGame::splitStringIntoVector(string s)
+{
+	std::vector<std::string> result;
+	std::istringstream iss(s);
+	for (std::string s; iss >> s; )
+		result.push_back(s);
+	return result;
 }
 
 void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
@@ -153,13 +167,14 @@ void NetworkedGame::UpdateGame(float dt)
 		if (apples.size() <= 0) {
 			gameIsFinish = true;
 			if (thisServer != nullptr) {
-				thisServer->SendGlobalPacket(StringPacket("Winner"));
+				thisServer->SendGlobalPacket(StringPacket(" winner"));
 			} else {
-				this->thisClient->SendPacket(StringPacket(std::to_string(points)));
-				thisClient->SendPacket(StringPacket("Winner"));
+				thisClient->SendPacket(StringPacket(" winner " + std::to_string(points)));
 			}
 		}
 	} else {
+		sort(leaderboards.begin(), leaderboards.end(), std::greater<>());
+		renderer->DrawString("Respawn in " + std::to_string(1), Vector2(screenX - 200, screenY - 20), Vector4(1, 1, 0, 1));
 		renderer->DrawString("Leaderboards", Vector2(screenX - 200, screenY / 2 + 20), Vector4(1, 1, 0, 1));
 		for (size_t i = 0; i < leaderboards.size(); i++) {
 			renderer->DrawString(std::to_string(leaderboards[i]), Vector2(screenX, screenY/2 - i * 25), Vector4(1, 1, 0, 1));
@@ -220,30 +235,27 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 		StringPacket* realPacket = (StringPacket*)payload;
 		string msg = realPacket->GetStringFromData();
 		if (thisServer != nullptr) {
-			std::cout << msg << std::endl;
-			if (msg == "Winner") {
+			vector<string> msgs = splitStringIntoVector(msg);
+			if (msgs[0] == "winner") {
 				gameIsFinish = true;
 				leaderboards.push_back(points);
-				leaderboards.push_back(g2Points);
+				leaderboards.push_back(stoi(msgs[1]));
 				string scores = "";
-				sort(leaderboards.begin(), leaderboards.end());
 				for (int i = 0; i < leaderboards.size(); i++) {
-					scores += leaderboards[i] + " ";
+					scores += std::to_string(leaderboards[i]) + " ";
 				}
 				thisServer->SendGlobalPacket(StringPacket(scores));
 			} else {
 				g2Points = stoi(msg);
 			}
 		} else {
-			if (msg == "Winner") {
+			if (msg == "winner") {
 				gameIsFinish = true;
 			} else {
 				if (gameIsFinish) {
-					std::regex ws_re("\\s+");
-					std::vector<std::string> result {
-						std::sregex_token_iterator(msg.begin(), msg.end(), ws_re, -1), {}
-					};
-					for (string s : result) {
+					leaderboards.clear();
+					vector<string> msgs = splitStringIntoVector(msg);
+					for (string s : msgs) {
 						if (s != "") leaderboards.push_back(stoi(s));
 					}
 				} else {
@@ -251,6 +263,8 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 				}
 			}
 		}
+	} else if (type == Player_Disconnected) {
+		gameIsFinish = true;
 	}
 }
 

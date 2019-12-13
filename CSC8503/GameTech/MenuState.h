@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include "NetworkGameState.h"
 #include "FinalScreenState.h"
+#include "FinalScreenNetworkingState.h"
 
 
 namespace NCL {

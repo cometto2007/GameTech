@@ -7,10 +7,15 @@ NetworkGameState::NetworkGameState(bool isServer)
 	this->isServer = isServer;
 }
 
+void NCL::CSC8503::NetworkGameState::OnAwake()
+{
+	delete game;
+	this->game = new NetworkedGame(isServer);
+}
+
 void NetworkGameState::Update()
 {
 	float dt = Window::GetWindow()->GetTimer()->GetTimeDeltaSeconds();
-	std::cout << dt << std::endl;
 	this->game->UpdateGame(dt);
 }
 
@@ -19,8 +24,14 @@ PushdownState::PushdownResult NetworkGameState::PushdownUpdate(PushdownState** p
 	Update();
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::P)) {
 		return PushdownResult::Pop;
-	}
-	else {
+	} else if (game->getIsFinish()) {
+		if (isServer) {
+			*pushResult = (PushdownState*) new FinalScreenNetworkingState(3, game->getLeaderboard());
+		} else {
+			*pushResult = (PushdownState*) new FinalScreenNetworkingState(4, game->getLeaderboard());
+		}
+		return PushdownResult::Push;
+	} else {
 		return PushdownResult::NoChange;
 	}
 }

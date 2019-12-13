@@ -1,8 +1,10 @@
 #pragma once
+
+#include "../../Plugins/OpenGLRendering/OGLRenderer.h"
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "../../Plugins/OpenGLRendering/OGLRenderer.h"
+
 
 using namespace NCL;
 
@@ -15,6 +17,7 @@ public:
 	void addChoice(std::string choice);
 	void displayMenu();
 	void displayMenu(int points);
+	void displayMenu(std::vector<int> leaderboards, int time);
 	void interact();
 	int getSelChoice() { return selChoice; };
 
