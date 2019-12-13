@@ -3,6 +3,7 @@
 #include "PlayerObject.h"
 #include "Apple.h"
 #include "Water.h"
+#include "bridgeLog.h"
 //#include "HumanEnemy.h"
 #include "../CSC8503Common/PhysicsSystem.h"
 #include "../CSC8503Common/NavigationGrid.h"
@@ -68,6 +69,7 @@ namespace NCL {
 			int points = 0;
 
 			vector<Apple*> apples;
+			vector<HumanEnemy*> parkKeepers;
 			HumanEnemy* e;
 			Vector3 islandPosition;
 
@@ -85,6 +87,7 @@ namespace NCL {
 			void AddBridgeConstraint();
 			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass, Vector4 col);
 			void checkLetApples();
+			void addParkKeeper();
 		};
 	}
 }

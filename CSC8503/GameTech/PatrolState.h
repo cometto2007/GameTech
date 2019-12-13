@@ -9,7 +9,7 @@ namespace NCL {
 		class PatrolState : public PushdownState
 		{
 		public:
-			PatrolState(HumanEnemy* enemy, PlayerObject* player);
+			PatrolState(HumanEnemy* enemy, PlayerObject* player, bool follow = false);
 			~PatrolState();
 
 			virtual void OnAwake();
@@ -22,6 +22,7 @@ namespace NCL {
 			HumanEnemy* enemy;
 			PlayerObject* player;
 			float patrolRadius;
+			bool follow;
 
 			vector<Vector3> patrolPos;
 			int currentPatrolGoal;

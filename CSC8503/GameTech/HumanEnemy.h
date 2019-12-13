@@ -11,7 +11,7 @@ using namespace CSC8503;
 class HumanEnemy : public GameObject
 {
 public:
-	HumanEnemy(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, CourseworkGame* game);
+	HumanEnemy(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, CourseworkGame* game, bool isParkKeeper = false);
 	~HumanEnemy();
 
 	void followPosition(Vector3 position);
@@ -28,6 +28,7 @@ private:
 	void getRightGoalPos(Vector3 goalPos);
 
 	float speed;
+	bool isParkKeeper;
 	CourseworkGame* game;
 };
 

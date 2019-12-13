@@ -88,6 +88,15 @@ void NavigationGrid::DebugDisplayGrid() {
 	} 
 }
 
+bool NCL::CSC8503::NavigationGrid::isPossible(const Vector3 from)
+{
+	int fromX = (from.x / nodeSize);
+	int fromZ = (from.z / nodeSize);
+
+	GridNode* startNode = &allNodes[(fromZ * gridWidth) + fromX];
+	return startNode->type != 'x';
+}
+
 GridNode* getNearestPoint(GridNode* x, GridNode* gridNode, size_t t) {
 	float distance = FLT_MAX;
 	GridNode* init = nullptr;
@@ -102,6 +111,8 @@ GridNode* getNearestPoint(GridNode* x, GridNode* gridNode, size_t t) {
 	}
 	return init;
 }
+
+
 
 bool NavigationGrid::FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) {
 	// need to work out which node 'from ' sits in , and 'to ' sits in

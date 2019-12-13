@@ -1,10 +1,10 @@
 #include "FollowShootingState.h"
 
-NCL::CSC8503::FollowShootingState::FollowShootingState(HumanEnemy* enemy, PlayerObject* player)
+NCL::CSC8503::FollowShootingState::FollowShootingState(HumanEnemy* enemy, PlayerObject* player, float maxChasingDist)
 {
 	this->enemy = enemy;
 	this->player = player;
-	maxChasingDist = 50.0f;
+	this->maxChasingDist = maxChasingDist;
 }
 
 NCL::CSC8503::FollowShootingState::~FollowShootingState()

@@ -50,6 +50,7 @@ namespace NCL {
 			void UpdateMinimumState();
 
 			void changePlayerRotationFromVar(PlayerObject* obj, float var);
+			void spawnParkKeeper();
 
 			std::map<int, int> stateIDs;
 
@@ -59,6 +60,8 @@ namespace NCL {
 			int packetsToSnapshot;
 			int g2Points;
 			bool gameIsFinish = false;
+
+			float funcTimer = 0;
 
 			vector<int> leaderboards;
 

@@ -82,7 +82,10 @@
       <Filter>State</Filter>
     </ClCompile>
     <ClCompile Include="FinalScreenNetworkingState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="bridgeLog.cpp">
+      <Filter>GameObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -141,7 +144,10 @@
       <Filter>State</Filter>
     </ClInclude>
     <ClInclude Include="FinalScreenNetworkingState.h">
-      <Filter>Header Files</Filter>
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="bridgeLog.h">
+      <Filter>GameObjects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

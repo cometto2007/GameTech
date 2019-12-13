@@ -9,7 +9,6 @@ NCL::CSC8503::GameState::GameState()
 void NCL::CSC8503::GameState::Update()
 {
 	float dt = Window::GetWindow()->GetTimer()->GetTimeDeltaSeconds();
-	std::cout << dt;
 	this->game->UpdateGame(dt);
 }
 

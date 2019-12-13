@@ -26,9 +26,9 @@ PushdownState::PushdownResult NetworkGameState::PushdownUpdate(PushdownState** p
 		return PushdownResult::Pop;
 	} else if (game->getIsFinish()) {
 		if (isServer) {
-			*pushResult = (PushdownState*) new FinalScreenNetworkingState(3, game->getLeaderboard());
+			*pushResult = (PushdownState*) new FinalScreenNetworkingState(20, game->getLeaderboard(), true);
 		} else {
-			*pushResult = (PushdownState*) new FinalScreenNetworkingState(4, game->getLeaderboard());
+			*pushResult = (PushdownState*) new FinalScreenNetworkingState(21, game->getLeaderboard(), false);
 		}
 		return PushdownResult::Push;
 	} else {

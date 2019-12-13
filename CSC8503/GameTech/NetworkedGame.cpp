@@ -9,7 +9,6 @@
 #include <string>
 #include <sstream>
 
-
 #define COLLISION_MSG 30
 
 NetworkedGame::NetworkedGame(bool isServer)
@@ -31,7 +30,6 @@ void NetworkedGame::StartAsServer()
 	thisServer->setGame(this);
 	thisServer->RegisterPacketHandler(Received_State, this);
 	thisServer->RegisterPacketHandler(String_Message, this);
-	thisServer->RegisterPacketHandler(Player_Disconnected, this);
 	player->GetNetworkObject()->setNetworkId(100);
 	
 	std::cout << "Server Connected" << std::endl;
@@ -137,12 +135,62 @@ void NCL::CSC8503::NetworkedGame::changePlayerRotationFromVar(PlayerObject* obj,
 	obj->GetTransform().SetLocalOrientation(newOr);
 }
 
+void NCL::CSC8503::NetworkedGame::spawnParkKeeper()
+{
+	if (remainingTime % 30 == 0) {
+		if (g2Points == points || points > g2Points) {
+			CourseworkGame::addParkKeeper();
+		}
+	}
+}
+
 void NetworkedGame::UpdateGame(float dt)
 {
 	float screenY = Window::GetWindow()->GetScreenSize().y;
 	float screenX = Window::GetWindow()->GetScreenSize().x / 2;
-		
 	CourseworkGame::UpdateGame(dt);
+	funcTimer += dt;
+
+	if (!gameIsFinish) {
+		if (thisServer != nullptr) {
+			this->thisServer->SendGlobalPacket(StringPacket(std::to_string(points)));
+		}
+		else {
+			this->thisClient->SendPacket(StringPacket(std::to_string(points)));
+		}
+		if (apples.size() <= 0) {
+			if (thisServer != nullptr) {
+				leaderboards.clear();
+				leaderboards.push_back(points);
+				leaderboards.push_back(g2Points);
+				string scores = " winner ";
+				for (int i = 0; i < leaderboards.size(); i++) {
+					scores += std::to_string(leaderboards[i]) + " ";
+				}
+				thisServer->SendGlobalPacket(StringPacket(scores));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+			else {
+				thisClient->SendPacket(StringPacket(" winner " + std::to_string(points)));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+			gameIsFinish = true;
+		}
+	}
+	else {
+		sort(leaderboards.begin(), leaderboards.end(), std::greater<>());
+		renderer->DrawString("Respawn in " + std::to_string(1), Vector2(screenX - 200, screenY - 20), Vector4(1, 1, 0, 1));
+		renderer->DrawString("Leaderboards", Vector2(screenX - 200, screenY / 2 + 20), Vector4(1, 1, 0, 1));
+		for (size_t i = 0; i < leaderboards.size(); i++) {
+			renderer->DrawString(std::to_string(leaderboards[i]), Vector2(screenX, screenY / 2 - i * 25), Vector4(1, 1, 0, 1));
+		}
+	}
+
+	if (funcTimer > 1) {
+		funcTimer = 0;
+		spawnParkKeeper();
+	}
+	
 	if (thisServer != nullptr) {
 		Window::GetWindow()->SetTitle("Server");
 		UpdateAsServer(dt);
@@ -156,29 +204,6 @@ void NetworkedGame::UpdateGame(float dt)
 		renderer->DrawString("g1 " + std::to_string(points), Vector2(20, screenY - 20), Vector4(1, 0, 0, 1));
 		renderer->DrawString("g2 " + std::to_string(g2Points), Vector2(20, screenY - 40), Vector4(1, 0, 0, 1));
 		thisClient->UpdateClient();
-	}
-	if (!gameIsFinish) {
-		if (thisServer != nullptr) {
-			this->thisServer->SendGlobalPacket(StringPacket(std::to_string(points)));
-		}
-		else {
-			this->thisClient->SendPacket(StringPacket(std::to_string(points)));
-		}
-		if (apples.size() <= 0) {
-			gameIsFinish = true;
-			if (thisServer != nullptr) {
-				thisServer->SendGlobalPacket(StringPacket(" winner"));
-			} else {
-				thisClient->SendPacket(StringPacket(" winner " + std::to_string(points)));
-			}
-		}
-	} else {
-		sort(leaderboards.begin(), leaderboards.end(), std::greater<>());
-		renderer->DrawString("Respawn in " + std::to_string(1), Vector2(screenX - 200, screenY - 20), Vector4(1, 1, 0, 1));
-		renderer->DrawString("Leaderboards", Vector2(screenX - 200, screenY / 2 + 20), Vector4(1, 1, 0, 1));
-		for (size_t i = 0; i < leaderboards.size(); i++) {
-			renderer->DrawString(std::to_string(leaderboards[i]), Vector2(screenX, screenY/2 - i * 25), Vector4(1, 1, 0, 1));
-		}
 	}
 }
 
@@ -238,33 +263,23 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 			vector<string> msgs = splitStringIntoVector(msg);
 			if (msgs[0] == "winner") {
 				gameIsFinish = true;
-				leaderboards.push_back(points);
-				leaderboards.push_back(stoi(msgs[1]));
-				string scores = "";
-				for (int i = 0; i < leaderboards.size(); i++) {
-					scores += std::to_string(leaderboards[i]) + " ";
-				}
-				thisServer->SendGlobalPacket(StringPacket(scores));
 			} else {
 				g2Points = stoi(msg);
 			}
 		} else {
-			if (msg == "winner") {
+			vector<string> msgs = splitStringIntoVector(msg);
+			if (msgs[0] == "winner") {
 				gameIsFinish = true;
-			} else {
-				if (gameIsFinish) {
-					leaderboards.clear();
-					vector<string> msgs = splitStringIntoVector(msg);
-					for (string s : msgs) {
-						if (s != "") leaderboards.push_back(stoi(s));
+				leaderboards.clear();
+				for (string s : msgs) {
+					if (isdigit(s[0])) {
+						leaderboards.push_back(stoi(s));
 					}
-				} else {
-					g2Points = stoi(msg);
 				}
+			} else {
+				g2Points = stoi(msg);
 			}
 		}
-	} else if (type == Player_Disconnected) {
-		gameIsFinish = true;
 	}
 }
 

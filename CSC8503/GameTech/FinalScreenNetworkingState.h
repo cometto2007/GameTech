@@ -8,7 +8,7 @@ namespace NCL {
 		class FinalScreenNetworkingState : public PushdownState
 		{
 		public:
-			FinalScreenNetworkingState(int time, vector<int> leaderboard);
+			FinalScreenNetworkingState(int time, vector<int> leaderboard, bool isServer);
 			~FinalScreenNetworkingState() {};
 
 			virtual void OnAwake();
@@ -16,6 +16,8 @@ namespace NCL {
 
 			virtual void Update();
 
+			void writeScoreOnFile();
+			bool readScoreFromFile();
 
 			PushdownResult PushdownUpdate(PushdownState** pushResult) override;
 
@@ -26,6 +28,7 @@ namespace NCL {
 
 			Menu* finalMenu;
 			vector<int> leaderboard;
+			bool isServer;
 		};
 	}
 }

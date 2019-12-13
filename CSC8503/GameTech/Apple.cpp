@@ -1,6 +1,6 @@
 #include "Apple.h"
 
-Apple::Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader)
+Apple::Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, bool isSpecial)
 {
 	SphereVolume* volume = new SphereVolume(0.5f);
 	boundingVolume = (CollisionVolume*)volume;
@@ -18,13 +18,18 @@ Apple::Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader)
 	taken = false;
 	followHeight = 3.0f;
 	delay = 0.0f;
+	this->isSpecial = isSpecial;
+	if (isSpecial) {
+		renderObject->SetColour(Vector4(0.18f, 0.16f, 0.84f, 1.0f));
+	} else {
+		renderObject->SetColour(Vector4(0.85f, 0.22f, 0.14f, 1.0f));
+	}
 }
 
 void Apple::followPlayer(float dt)
 {
 	if (taken) {
 		transform.SetWorldPosition(Vector3(transform.GetWorldPosition().x, followHeight, transform.GetWorldPosition().z));
-		Debug::DrawLine(currentGoalPos, Vector3(currentGoalPos.x, 7.0f, currentGoalPos.z), Vector4(1, 1, 1, 1)); // TODO: delete this
 		float distanceFromGoal = (transform.GetWorldPosition() - currentGoalPos).Length();
 		Vector3 axis = (currentGoalPos - transform.GetWorldPosition());
 		axis.Normalise();

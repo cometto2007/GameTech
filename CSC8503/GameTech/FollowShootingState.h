@@ -9,7 +9,7 @@ namespace NCL {
 		class FollowShootingState : public PushdownState
 		{
 		public:
-			FollowShootingState(HumanEnemy* enemy, PlayerObject* player);
+			FollowShootingState(HumanEnemy* enemy, PlayerObject* player, float maxChasingDist = 50.0f);
 			~FollowShootingState();
 
 			virtual void OnAwake();

@@ -8,4 +8,5 @@ void Loader::Destroy()
 Loader::Loader()
 {
 	floatingGrid = new NavigationGrid("TestGrid1.txt");
+	humanGrid = new NavigationGrid("TestGrid2.txt");
 }

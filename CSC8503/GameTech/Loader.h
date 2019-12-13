@@ -15,6 +15,7 @@ namespace NCL {
 			void Destroy();
 
 			NavigationGrid* getFloatingGrid() { return floatingGrid; };
+			NavigationGrid* getHumanGrid() { return humanGrid; };
 			int getNewId() { 
 				id++;
 				return id - 1;
@@ -24,6 +25,7 @@ namespace NCL {
 			Loader();
 
 			NavigationGrid* floatingGrid;
+			NavigationGrid* humanGrid;
 			int id = 10;
 		};
 	}

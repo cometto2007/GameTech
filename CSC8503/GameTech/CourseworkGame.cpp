@@ -103,7 +103,17 @@ void CourseworkGame::UpdateGame(float dt) {
 		a->followPlayer(dt);
 	}
 	e->getBehaviour()->Update();
+	for (HumanEnemy* h : parkKeepers) {
+		h->getBehaviour()->Update();
+	}
 	checkLetApples();
+	if (player->getHitted()) {
+		player->setHitted(false);
+		for (Apple* a : apples) {
+			a->setIsTaken(false);
+			a->GetTransform().SetWorldScale(Vector3(2,2,2));
+		}
+	}
 	renderer->Render();
 }
 
@@ -235,6 +245,7 @@ void CourseworkGame::InitCamera() {
 void CourseworkGame::InitWorld() {
 	world->ClearAndErase();
 	apples.clear();
+	parkKeepers.clear();
 	physics->Clear();
 
 	startTime = clock(); 
@@ -256,16 +267,52 @@ void CourseworkGame::InitWorld() {
 	AddFloorToWorld(Vector3(150, -1, 35), Vector3(50, 1, 35), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 	AddFloorToWorld(Vector3(167.5f, -1, 75), Vector3(32.5f, 1, 5), nullptr, Vector4(0.16f, 0.71f, 0.0f, 1.0f));
 
-	for (size_t i = 0; i < 2; i++) {
-		Apple* a = new Apple(Vector3(RandomFloat(0, 100), 3, RandomFloat(0, 100)), appleMesh, basicShader);
-		a->GetRenderObject()->SetColour(Vector4(0.85f, 0.22f, 0.14f, 1.0f));
+	Vector4 col(0.72f, 0.44f, 0.05f, 1.0f);
+	AddCubeToWorld(Vector3(150, 10, 195), Vector3(50, 10, 5), 0, col);
+	AddCubeToWorld(Vector3(195, 10, 95), Vector3(5, 10, 95), 0, col);
+	AddCubeToWorld(Vector3(95, 10, 5), Vector3(95, 10, 5), 0, col);
+	AddCubeToWorld(Vector3(5, 10, 55), Vector3(5, 10, 45), 0, col);
+
+	for (size_t i = 0; i < 10; i++) {
+		Apple* a;
+		if (i % 5 == 0) {
+			a = new Apple(Vector3(RandomFloat(110, 190), 3, RandomFloat(110, 190)), appleMesh, basicShader, true);
+		} else {
+			a = new Apple(Vector3(RandomFloat(110, 190), 3, RandomFloat(110, 190)), appleMesh, basicShader, false);
+		}
 		apples.push_back(a);
 		world->AddGameObject(a);
 	}
-	/*Apple* a = new Apple(Vector3(55, 3, 150), appleMesh, basicShader);
-	a->GetRenderObject()->SetColour(Vector4(0.85f, 0.22f, 0.14f, 1.0f));
+	for (size_t i = 0; i < 10; i++) {
+		Apple* a;
+		if (i % 5 == 0) {
+			a = new Apple(Vector3(RandomFloat(110, 190), 3, RandomFloat(10, 90)), appleMesh, basicShader, true);
+		}
+		else {
+			a = new Apple(Vector3(RandomFloat(110, 190), 3, RandomFloat(10, 90)), appleMesh, basicShader, false);
+		}
+		apples.push_back(a);
+		world->AddGameObject(a);
+	}
+	for (size_t i = 0; i < 10; i++) {
+		Apple* a;
+		if (i % 5 == 0) {
+			a = new Apple(Vector3(RandomFloat(10, 90), 3, RandomFloat(10, 90)), appleMesh, basicShader, true);
+		}
+		else {
+			a = new Apple(Vector3(RandomFloat(10, 90), 3, RandomFloat(10, 90)), appleMesh, basicShader, false);
+		}
+		apples.push_back(a);
+		world->AddGameObject(a);
+	}
+	/*Apple* a = new Apple(Vector3(45, 2, 150), appleMesh, basicShader, false);
 	apples.push_back(a);
-	world->AddGameObject(a);*/
+	world->AddGameObject(a);
+
+	Apple* a1 = new Apple(Vector3(65, 2, 150), appleMesh, basicShader, false);
+	apples.push_back(a1);
+	world->AddGameObject(a1);*/
+
 
 	e = new HumanEnemy(Vector3(150, 3, 50), charA, basicShader, this);
 	world->AddGameObject(e);
@@ -411,13 +458,27 @@ GameObject* CourseworkGame::AddCubeToWorld(const Vector3& position, Vector3 dime
 void NCL::CSC8503::CourseworkGame::checkLetApples()
 {
 	float distance = (player->GetTransform().GetWorldPosition() - islandPosition).Length();
+	int tempPoint = 0;
+	int multi = 1;
 	if (distance < 10) {
 		for (size_t i = 0; i < apples.size(); i++) {
 			if (apples[i]->getIsTaken()) {
+				if (apples[i]->getIsSpecial()) {
+					multi++;
+				} else {
+					tempPoint++;
+				}
 				world->RemoveGameObject(apples[i]);
 				apples.erase(apples.begin() + i);
-				points++;
 			}
 		}
+		points += (tempPoint * multi);
 	}
+}
+
+void NCL::CSC8503::CourseworkGame::addParkKeeper()
+{
+	HumanEnemy* parkKeeper = new HumanEnemy(Vector3(50, 3, 50), charA, basicShader, this, true);
+	parkKeepers.push_back(parkKeeper);
+	world->AddGameObject(parkKeeper);
 }

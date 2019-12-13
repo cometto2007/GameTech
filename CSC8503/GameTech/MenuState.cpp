@@ -49,8 +49,11 @@ PushdownState::PushdownResult MenuState::PushdownUpdate(PushdownState** pushResu
 	}
 	Update();
 	if (mainMenu->isEnterPressed()) {
-		if (mainMenu->getSelChoice() == 0 || mainMenu->getSelChoice() == 1) {
+		if (mainMenu->getSelChoice() == 0) {
 			gamestate = new GameState();
+			*pushResult = (PushdownState*)gamestate;
+			return PushdownResult::Push;
+		}if (mainMenu->getSelChoice() == 1) {
 			*pushResult = (PushdownState*)gamestate;
 			return PushdownResult::Push;
 		} else if (mainMenu->getSelChoice() == 3) {

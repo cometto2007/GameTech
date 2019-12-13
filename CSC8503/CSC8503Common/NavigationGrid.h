@@ -38,6 +38,8 @@ namespace NCL {
 			bool FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) override;
 
 			void DebugDisplayGrid();
+
+			bool isPossible(const Vector3 from);
 				
 		protected:
 			bool		NodeInList(GridNode* n, std::vector<GridNode*>& list) const;

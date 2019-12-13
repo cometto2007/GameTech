@@ -22,8 +22,19 @@ public:
 	bool getIsEnemy() { return isEnemy; };
 	void move(Vector3 axis);
 
+	void setHitted(bool hit) { this->hitted = hit; }
+	bool getHitted() { return this->hitted; }
+
 private:
 	Loader loader = Loader::getInstance();
 	const float moveForce = 100.0f;
 	bool isEnemy;
+	bool hitted = false;
+
+	float RandomFloat(float a, float b) {
+		float random = ((float)rand()) / (float)RAND_MAX;
+		float diff = b - a;
+		float r = random * diff;
+		return a + r;
+	}
 };

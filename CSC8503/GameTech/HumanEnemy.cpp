@@ -3,7 +3,7 @@
 
 #include <math.h> 
 
-HumanEnemy::HumanEnemy(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, CourseworkGame* game)
+HumanEnemy::HumanEnemy(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, CourseworkGame* game, bool isParkKeeper)
 {
 	float meshSize = 4.0f;
 	float inverseMass = 0.5f;
@@ -21,10 +21,11 @@ HumanEnemy::HumanEnemy(Vector3 position, MeshGeometry* mesh, ShaderBase* shader,
 	physicsObject->InitCubeInertia();
 
 	pushdownMachBehav = new PushdownMachine();
-	pushdownMachBehav->addState(new PatrolState(this, game->getPlayer()));
-	navGrid = loader.getFloatingGrid(); // TODO: change in the new grid for humans
+	pushdownMachBehav->addState(new PatrolState(this, game->getPlayer(), isParkKeeper));
+	navGrid = loader.getHumanGrid(); // TODO: change in the new grid for humans
 	speed = 30.0f;
 	this->game = game;
+	this->isParkKeeper = isParkKeeper;
 }
 
 HumanEnemy::~HumanEnemy()
@@ -34,29 +35,27 @@ HumanEnemy::~HumanEnemy()
 
 void HumanEnemy::followPosition(Vector3 position)
 {
-	Debug::DrawLine(position, Vector3(position.x, 7.0f, position.z), Vector4(1, 0, 0, 1));
-	if (path.isEmpty()) {
-		navGrid->FindPath(transform.GetWorldPosition(), position, path);
-		path.PopWaypoint(currentGoalPos);
-	}
+	if (navGrid->isPossible(position)) {
+		if (path.isEmpty()) {
+			navGrid->FindPath(transform.GetWorldPosition(), position, path);
+			path.PopWaypoint(currentGoalPos);
+		}
 
-	// TODO: fix this
-	float angle = std::atan((transform.GetWorldPosition().x - position.x) / (transform.GetWorldPosition().y - position.y));
-	angle = angle * (180.0 / 3.141592653589793238463);
+		float angle = std::atan((transform.GetWorldPosition().x - position.x) / (transform.GetWorldPosition().y - position.y));
+		angle = angle * (180.0 / 3.141592653589793238463);
+		transform.SetLocalOrientation(Quaternion::AxisAngleToQuaterion(Vector3(0,1,0), -angle));
 
-	Quaternion newOr = Quaternion::EulerAnglesToQuaternion(0, -angle, 0);
-	transform.SetLocalOrientation(newOr);
-
-	Debug::DrawLine(currentGoalPos, Vector3(currentGoalPos.x, 7.0f, currentGoalPos.z), Vector4(1, 1, 1, 1));
-	float distanceFromGoal = (transform.GetWorldPosition() - currentGoalPos).Length();
-	Vector3 axis = (currentGoalPos - transform.GetWorldPosition());
-	axis.Normalise();
-	if (distanceFromGoal > 20.0f * 2.0f) {
-		physicsObject->AddForce(axis * speed);
-	} else {
-		if (navGrid->FindPath(transform.GetWorldPosition(), position, path)) {
-			getRightGoalPos(position);
+		float distanceFromGoal = (transform.GetWorldPosition() - currentGoalPos).Length();
+		Vector3 axis = (currentGoalPos - transform.GetWorldPosition());
+		axis.Normalise();
+		if (distanceFromGoal > 20.0f * 2.0f) {
 			physicsObject->AddForce(axis * speed);
+		}
+		else {
+			if (navGrid->FindPath(transform.GetWorldPosition(), position, path)) {
+				getRightGoalPos(position);
+				physicsObject->AddForce(axis * speed);
+			}
 		}
 	}
 }
@@ -85,5 +84,3 @@ void HumanEnemy::getRightGoalPos(Vector3 goalPos)
 		path.PopWaypoint(currentGoalPos);
 	}
 }
-
-

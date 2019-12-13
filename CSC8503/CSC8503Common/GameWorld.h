@@ -53,6 +53,9 @@ namespace NCL {
 				std::vector<Constraint*>::const_iterator& first,
 				std::vector<Constraint*>::const_iterator& last) const;
 
+			Constraint* getConstraint(int i) { return constraints[i]; };
+			int getConstraintSize() { return constraints.size(); };
+
 		protected:
 			void UpdateTransforms();
 			void UpdateQuadTree();

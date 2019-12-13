@@ -12,15 +12,18 @@ using namespace CSC8503;
 class Apple : public GameObject
 {
 public:
-	Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader);
+	Apple(Vector3 position, MeshGeometry* mesh, ShaderBase* shader, bool isSpecial = false);
 	~Apple() {};
 
 	void followPlayer(float dt);
 
 	bool getIsTaken() { return taken; };
+	void setIsTaken(bool taken) { this->taken = taken; };
 
 	virtual void OnCollisionBegin(GameObject* otherObject) override;
 	virtual void OnCollisionEnd(GameObject* otherObject) override;
+
+	bool getIsSpecial() { return isSpecial; }
 private:
 	Loader loader = Loader::getInstance();
 
@@ -34,6 +37,7 @@ private:
 	Vector3 testPos;
 
 	bool taken;
+	bool isSpecial;
 	float followSpeed = 50.0f;
 	float followHeight;
 
